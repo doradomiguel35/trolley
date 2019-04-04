@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .forms import SignUpValidation, LoginValidation
+from main.forms import BoardForms, TeamForms
 from django.contrib.auth import login, authenticate
 
 class HomeView(TemplateView):
@@ -19,6 +20,8 @@ class LoginView(TemplateView):
     """
     template_name = "user/login.html"
     login_form = LoginValidation()
+    board_form = BoardForms()
+    team_form = TeamForms()
 
     def get(self, *args, **kwargs):
         # import pdb; pdb.set_trace()
@@ -35,7 +38,9 @@ class LoginView(TemplateView):
                 password=forms.cleaned_data.get('password'))
             login(self.request, user)
 
-            return render(self.request, 'main/home.html')
+            return render(self.request, 'main/home.html',
+                {'board_form': self.board_form,
+                 'team_form': self.team_form})
         
         return render(self.request, self.template_name, 
             {'forms': forms})
@@ -47,6 +52,9 @@ class SignUpView(TemplateView):
     """
     template_name = "user/signup.html"
     signup_form = SignUpValidation()
+    board_form = BoardForms()
+    team_form = TeamForms()
+
 
     def get(self, *args, **kwargs):
         signup_form = SignUpValidation()
@@ -66,7 +74,9 @@ class SignUpView(TemplateView):
                 password=form.cleaned_data.get('password'))
             login(request, user)
 
-            return render(self.request, "base.html")
+            return render(self.request, 'main/home.html',
+                {'board_form': self.board_form,
+                 'team_form': self.team_form})
 
         return render(self.request, self.template_name, 
             {'forms': forms})
