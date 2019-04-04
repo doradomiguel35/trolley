@@ -1,0 +1,175 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+@font-face{
+	font-family: logo;
+	src: url(../fonts/Pacifico.ttf);
+}
+
+@font-face{
+	font-family: login;
+	src: url(../fonts/HussarBoldWeb.woff);
+}
+
+@font-face{
+	font-family: login-forms;
+	src: url(../fonts/Abel-Regular.ttf);
+}
+
+.logo-font{
+	font-family: logo;
+	font-size: 30px;
+	color: #ffffff;
+}
+
+.logo-image{
+	width: 50px; 
+	height: 50px; 
+	margin-bottom: 15px;
+}
+
+
+.nav-container-right{
+	float: right;
+	margin-left: 1400px;
+}
+
+.nav-login{
+	color: #ffffff;
+	margin-right: 40px;
+}
+
+.login-font{
+	font-family: login;
+	font-size: 30px;
+}
+
+.login-container{
+	margin-top: 80px;
+	text-align: left;
+	margin-bottom: 50px;
+}
+
+.login-quiet{
+	font-family: login;
+	font-size: 15px;
+	color: #A9A9A9;
+}
+
+.login-forms{
+	font-family: login-forms;
+	font-size: 30px;
+	text-align: left;
+}
+
+.main-nav-margin{
+	margin-left: 10px;
+}
+
+.round-button{
+	border-radius: 20%;
+}
+
+.feed-content{
+	padding-left: 400px;
+	padding-right: 400px;
+	margin-top: 50px;
+}
+
+.feed-left{
+	padding-left: 10px;
+	padding-right: 50px;
+}
+
+.feed-col-left{
+	width: 300px;
+	float: left;
+}
+
+.feed-button-left{
+	width: 200px;
+	margin-bottom: 2px;
+	text-align: left;
+}
+
+.feed-text-left{
+	font-family: login;
+	font-size: 15px;
+	color: #A9A9A9;
+	margin-top: 30px;
+	margin-bottom: 10px;	
+	
+}
+.feed-text-right{
+	font-family: login;
+	font-size: 15px;
+	color: #A9A9A9;	
+	margin-bottom: 10px;	
+	
+}
+
+* { box-sizing: border-box; }
+
+body { 
+  font-family: 'Open Sans', sans-serif;
+  color: #666;
+}
+
+.wrapper {
+	padding: 5px;
+	max-width: 960px;
+	width: 95%;
+	margin: 20px auto;
+}
+header {
+	padding: 0 15px;
+}
+
+.columns {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	margin: 5px 0;
+}
+
+.column {
+	flex: 1;
+	/*border: 1px solid gray;*/
+	margin: 2px;
+	padding: 10px;
+	&:first-child { margin-left: 0; }
+	&:last-child { margin-right: 0; }
+	
+}
+
+.middle{
+	
+}
+
+footer {
+	padding: 0 15px;
+}
+
+
+@media screen and (max-width: 980px) {
+  .columns .column {
+		margin-bottom: 5px;
+    flex-basis: 40%;
+		&:nth-last-child(2) {
+			margin-right: 0;
+		}
+		&:last-child {
+			flex-basis: 100%;
+			margin: 0;
+		}
+	}
+}
+
+@media screen and (max-width: 680px) {
+	.columns .column {
+		flex-basis: 100%;
+		margin: 0 0 5px 0;
+	}
+}
+
+
+

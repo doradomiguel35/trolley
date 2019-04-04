@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}
+    <title>Log in - Trolley</title>
+{% endblock title %}
+
+{% block content %}
+<div id="container" class="container">
+    <div class="row ">
+        <div class="col-sm-6 offset-sm-3 text-center">
+            <div class="login-container">
+            {% if forms.email.errors %}    
+                <div class="alert alert-danger" role="alert">
+                    {{ forms.email.errors }}
+                </div>
+            {% endif %}
+            {% if forms.non_field_errors %}    
+                <div class="alert alert-danger" role="alert">
+                    {{ forms.non_field_errors|striptags }}
+                </div>
+            {% endif %}
+            <h1 class="login-font">Login to Trolley</h1>
+            <h1 class="login-quiet"> or <a href="{% url 'user:signup'%}"> create an account</a></h1>            
+            </div>
+            <div class="info-form">
+                <form method="post" class="form-inlin justify-content-center">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <h1 class="login-forms">Email</h1>
+                        {% render_field forms.email class+="form-control" name="email" placeholder="jane.doe@example.com" %}
+                    </div>
+                    <div class="form-group">
+                        <h1 class="login-forms">Password</h1>
+                        {% render_field forms.password class+="form-control" name="password" type="password" %}
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 540px;">Log in</button>
+                </form>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<nav class="navbar navbar-expand-lg navbar-light bg-info">	
+	<div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+        <ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<a href="" class="btn btn-primary">
+					<i class="fa fa-home"></i>
+				</a>
+			</li>
+			<li class="nav-item main-nav-margin">
+				<a href="" class="btn primary btn-primary">
+					<i class="fa fa-bars"></i>&nbsp Boards</a>
+			</li>
+        </ul>
+    </div>
+
+	 <div class="mx-auto order-0">
+		<a class="navbar-brand logo-font" href="{% url 'user:home' %}">TROLLEY</a>
+	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	    </button>
+	</div>
+
+	<div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+        <ul class="navbar-nav ml-auto">
+			<li class="nav-item main-nav-margin">
+				<a href="" class="btn primary btn-primary">
+					<i class="fa fa-plus" style="font-size:15px;color: #ffffff"></i>
+				</a>
+			</li>
+			<li class="nav-item main-nav-margin">
+				<a href="" class="btn primary btn-primary round-button">
+					<i class="material-icons" style="font-size:18px;color: #ffffff">person</i>
+				</a>
+			</li>
+        </ul>
+    </div>
+</nav>
+{% endblock main %}
+
+{% block content %}
+	<div class="wrapper">
+		<section class="columns">
+	   		<div class="column">
+				<a href="#" class="btn btn-outline-primary feed-button-left" >Boards</a><br>
+				<a href="#" class="btn btn-outline-secondary feed-button-left">Home</a><br>
+				
+				<h1 class="feed-text-left">TEAMS</h1>
+				<a href="#" class="btn btn-outline-secondary feed-button-left">
+					<i class="material-icons" style="font-size:14px">people</i>&nbsp (Name of team)
+				</a><br>
+				<a href="#" class="btn btn-outline-primary feed-button-left" style="margin-top: 20px;">
+					<i class="fa fa-plus" style="font-size:14px;"></i> Create a team
+				</a>
+
+	   		</div>
+	   		<div class="column">
+	   			lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+	   			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+	   			quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+	   			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+	   			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+	   			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	   		</div>
+	   		<div class="column">
+	   			<div style="padding-left: 100px;">
+				<h1 class="feed-text-right">LINKS</h1>
+				<a href="#" class="btn btn-outline-primary feed-button-left" style="margin-top: 20px;">
+					<i class="fa fa-plus" style="font-size:14px;"></i> Create a board
+				</a>
+				</div>
+	   		</div>	
+	   	</section>
+   	</div>
+</div>
+{% endblock content %}
