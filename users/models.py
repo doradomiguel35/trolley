@@ -10,6 +10,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     email = models.EmailField(max_length=250, unique=True)
     first_name = models.CharField(max_length=250)
     last_name = models.CharField(max_length=250)
+    teams = models.ManyToManyField('main.Team', blank=True)
 
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
