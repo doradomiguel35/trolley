@@ -24,7 +24,7 @@
             <h1 class="login-quiet"> or <a href="{% url 'user:signup'%}"> create an account</a></h1>            
             </div>
             <div class="info-form">
-                <form method="post" class="form-inlin justify-content-center">
+                <form action="{% url 'user:login' %}" method="post" class="form-inlin justify-content-center">
                     {% csrf_token %}
                     <div class="form-group">
                         <h1 class="login-forms">Email</h1>

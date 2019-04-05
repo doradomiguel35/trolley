@@ -1,0 +1,15 @@
+{% extends 'main/home.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<body style="background-color: #0079bf">
+	<div class="board-nav">
+		<h1 class="board-nav-title" style="margin-right: 10px;">{{ board.title }} &nbsp|</h1>
+		<h1 class="board-nav-title">|&nbsp {{ board.visibility}} &nbsp</h1>
+		<button type="button" class="btn btn-success" >Members</button>
+	</div>	
+
+</body>
+{% endblock content %}
+

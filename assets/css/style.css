@@ -1,22 +1,22 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 @font-face{
-	font-family: logo;
+	font-family: pacifico;
 	src: url(../fonts/Pacifico.ttf);
 }
 
 @font-face{
-	font-family: login;
+	font-family: hus;
 	src: url(../fonts/HussarBoldWeb.woff);
 }
 
 @font-face{
-	font-family: login-forms;
+	font-family: abel;
 	src: url(../fonts/Abel-Regular.ttf);
 }
 
 .logo-font{
-	font-family: logo;
+	font-family: pacifico;
 	font-size: 30px;
 	color: #ffffff;
 }
@@ -39,7 +39,7 @@
 }
 
 .login-font{
-	font-family: login;
+	font-family: hus;
 	font-size: 30px;
 }
 
@@ -50,13 +50,13 @@
 }
 
 .login-quiet{
-	font-family: login;
+	font-family: hus;
 	font-size: 15px;
 	color: #A9A9A9;
 }
 
 .login-forms{
-	font-family: login-forms;
+	font-family: abel;
 	font-size: 30px;
 	text-align: left;
 }
@@ -92,7 +92,7 @@
 }
 
 .feed-text-left{
-	font-family: login;
+	font-family: hus;
 	font-size: 15px;
 	color: #A9A9A9;
 	margin-top: 30px;
@@ -100,7 +100,7 @@
 	
 }
 .feed-text-right{
-	font-family: login;
+	font-family: hus;
 	font-size: 15px;
 	color: #A9A9A9;	
 	margin-bottom: 10px;	
@@ -133,7 +133,7 @@ header {
 
 .column {
 	flex: 1;
-	/*border: 1px solid gray;*/
+	/*border: 1px solid gray;	*/
 	margin: 2px;
 	padding: 10px;
 	&:first-child { margin-left: 0; }
@@ -170,6 +170,76 @@ footer {
 		margin: 0 0 5px 0;
 	}
 }
+
+.team-profile-bg{
+	background-color: #e3f2fd;
+	padding-bottom: 300px;
+}
+
+.team-pic-border{
+	border: 1px ;
+	height: 68px;
+	width: 68px;	
+	padding: 10px;
+	background-color: #A9A9A9;
+	border-radius: 10%;
+	float: left;
+	display: inline-block;
+}
+
+.column-profile{
+	margin-left: 140px;
+	margin-right: 140px;
+}
+
+.team-profile-details{
+	margin-left: 40px;
+	margin-right: 150px;
+	display: inline-block;
+}
+
+.team-profile-name{
+	font-family: hus;
+	font-size: 30px;
+}
+
+.team-profile-desc{
+	font-family: abel;
+	font-size: 20px;
+
+}
+
+.team-profile-website{
+	font-family: abel;
+	font-size: 15px;
+}
+
+.team-tabs{
+	margin-top: 20px;
+}
+
+.board-bg{
+	background-color: #0079bf;
+}
+
+.board-nav{
+	width: 1853px;
+	height: 60px;
+	padding-left: 20px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+
+}
+
+.board-nav-title{
+	font-family: abel;
+	font-size: 20px;
+	color: #ffffff;
+	margin-bottom: 0px;
+	display: inline-block;
+}
+
+
 
 
 

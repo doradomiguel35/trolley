@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from .forms import SignUpValidation, LoginValidation
 from main.forms import BoardForms, TeamForms
 from django.contrib.auth import login, authenticate
+from main.models import Board, Team
 
 class HomeView(TemplateView):
     """
@@ -37,10 +38,16 @@ class LoginView(TemplateView):
                 username=forms.cleaned_data.get('email'),
                 password=forms.cleaned_data.get('password'))
             login(self.request, user)
+            team_form = TeamForms()
+            board_form = BoardForms()
+            teams = self.request.user.teams.all()
+            boards = Board.objects.filter(owner_id=self.request.user.id)
 
             return render(self.request, 'main/home.html',
                 {'board_form': self.board_form,
-                 'team_form': self.team_form})
+                 'team_form': self.team_form,
+                 'teams': teams,
+                 'boards': boards})
         
         return render(self.request, self.template_name, 
             {'forms': forms})
@@ -73,10 +80,16 @@ class SignUpView(TemplateView):
                 username=form.cleaned_data.get('email'),
                 password=form.cleaned_data.get('password'))
             login(request, user)
+            team_form = TeamForms()
+            board_form = BoardForms()
+            teams = self.request.user.teams.all()
+            boards = Board.objects.filter(owner_id=self.request.user.id)
 
             return render(self.request, 'main/home.html',
                 {'board_form': self.board_form,
-                 'team_form': self.team_form})
+                 'team_form': self.team_form,
+                 'teams': teams,
+                 'boards': boards})
 
         return render(self.request, self.template_name, 
             {'forms': forms})

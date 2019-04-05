@@ -1,9 +1,47 @@
+{% extends 'main/home.html' %}
 {% load static %}
-{% extends 'base.html' %}
 {% load widget_tweaks %}
 
 
 {% block content %}
+    <div class="p-3 mb-2 bg-light text-dark">
+        <div class="wrapper">
+            <section class="columns">
+                <div class="column column-profile">
+                    <div class="team-profile-details">
+                        <h1 class="team-profile-name">{{ team_profile.name }}</h1>
+                        <h1 class="team-profile-desc">{{ team_profile.description }}</h1>
+                        <h1 class="team-profile-website">{{ team_profile.website }}</h1>
+                        <br>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="fa fa-pencil" style="font-size:24px"></i>&nbsp Edit Team Profile
+                        </a>
+                    </div>
+                    <div class="team-pic-border">
+                        <i class="material-icons" style="font-size:48px">people</i>
+                    </div>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="board-tab" data-toggle="tab" href="#boards" role="tab" aria-controls="boards" aria-selected="true">Boards</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="member-tab" data-toggle="tab" href="#members" role="tab" aria-controls="members" aria-selected="false">Members</a>
+                    </li>
+                    </ul>
+                    
 
+                </div>
+            </section>
+        </div>
+
+    </div>
+    <div class="wrapper">
+            <section class="columns">
+                <div class="columns">
+                    <div class="tab-content" id="team-tabs">
+                      <div class="tab-pane fade show active" id="boards" role="tabpanel" aria-labelledby="home-tab">.adadadasdd</div>
+                      <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="profile-tab">adadadad</div>
+                    </div>
+                </div>
 
 {% endblock content %}

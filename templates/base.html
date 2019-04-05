@@ -33,43 +33,32 @@
     {% endblock content %}
 
     <div class="modal fade" id="addBoard" tabindex="-1" role="dialog" aria-labelledby="addBoardLabel" aria-hidden="true">
-      <form>
+      <form action="{% url 'main:board' %}" method="post">
         {% csrf_token %}
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <input type="text" class="form-control" placeholder="Add board title">
+            {% render_field board_form.title class+="form-control" placeholder="Add board title" %}
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body"> 
             <div class="form-group">
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Description(Optional)"></textarea>
+                {% render_field board_form.description class+="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Description (Optional)" %}
             </div><br>
             <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Team
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">No Team</a>
-              </div>
+              {% render_field board_form.team class+="btn btn-secondary dropdown-toggle" %}
             </div>
             <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Visibility
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Private</a>
-                <a class="dropdown-item" href="#">Public</a>
+              {% render_field board_form.visibility class+="btn btn-secondary dropdown-toggle" %}
               </div>
-            </div>
             <span></span><br>
              
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Add Board</button>
+            <button type="submit" class="btn btn-primary">Add Board</button>
           </div>
         </div>
       </div>
@@ -77,7 +66,7 @@
     </div>
 
     <div class="modal fade" id="createTeam" tabindex="-1" role="dialog" aria-labelledby="createBoardLabel" aria-hidden="true">
-      <form action="{% url 'main:board' %}" method="post">
+      <form action="{% url 'main:create' %}" method="post">
         {% csrf_token %}
       <div class="modal-dialog" role="document">
         <div class="modal-content">
