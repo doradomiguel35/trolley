@@ -4,6 +4,7 @@ from .forms import BoardForms, TeamForms, ListForms
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView
 from django.http import JsonResponse
+from .serializers import ListSerializer, TicketSerializer
 
 
 class TeamView(TemplateView):
@@ -63,8 +64,8 @@ class BoardView(TemplateView):
         team = self.request.user.teams.all()
         lists = List.objects.filter(board_id=board.id)
         tickets = Ticket.objects.filter(lists_id__in=lists)
-        import pdb; pdb.set_trace()
-        
+
+
         return render(self.request, 'board/board.html',
             {'user': self.request.user,
              'board': board,
@@ -111,6 +112,9 @@ class ListView(TemplateView):
             lists = List(name=list_form.cleaned_data['name'],
                 board_id=kwargs.get('board_id'))
             lists.save()
+            serialize = ListSerializer(lists)
+
+            return JsonResponse(serialize.data, safe=False)
 
 
 
