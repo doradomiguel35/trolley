@@ -170,11 +170,11 @@ function add_card(event){
     data: $(this).serialize(),
     success: function(data){
       $('#ul-'+list_id).append(`
-        <li id=`+data.id+`>`+data.name+`</li>
+        <li draggable="true" ondragstart="drag(event)" id=`+data.id+`>`+data.name+`</li>
       `);
       $('#add-card-form-'+list_id).replaceWith(`
           <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
-      
+
       $('.add-card-btn').click(add_card_form);
     }
   });
@@ -208,6 +208,21 @@ function close_card_form(event){
   `);
 
   $('.add-card-btn').on('click',add_card_form);
+}
+
+function allowDrop(ev) {
+  ev.preventDefault();
+
+}
+
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+  
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(data));
 }
 
 

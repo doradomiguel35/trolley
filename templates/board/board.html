@@ -20,10 +20,10 @@
 		<ul id="ul-{{ list.id }}" class="list-items">
 			{% for ticket in tickets %}
 				{% if ticket.lists_id == list.id %}
-				<li id="{{ticket.id}}"> {{ ticket.name }} </li>
+				<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}"> {{ ticket.name }} </li>
 				{% endif %}
 			{% endfor %}
-			
+			<li class="drag"></li>
 		</ul>
 		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
 	</div>
