@@ -95,5 +95,43 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="{% static 'js/main.js' %}" ></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+function add_list(event){
+  event.preventDefault();
+  console.log('clicked');
+  $('.add-list-btn').remove();
+  $('#insert-list').append(
+    $(`<div class="list">
+      <h3 class="list-title">Name new List &nbsp &nbsp<span><button id="close-add" class="btn btn-primary close-add">x</button></span></h3>
+      <ul class="list-items">
+    <form method="post" action="/main/board/create/list/{{board.id}}/">
+      {% csrf_token %}
+      {% render_field list_form.name class+="form-control" placeholder="Name new list" %}
+      <br>
+      <button class="btn btn-primary" type="submit">Submit</button> 
+    </form>
+      </div>
+      </ul>`)
+
+  );
+  $('#close-add').on('click',close_add_list);
+}
+
+function close_add_list(event){
+  event.preventDefault();
+  console.log('clicked close');
+  $('#insert-list').empty();
+  $('.lists-container').append(
+    `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>
+  `);
+  $('#btn-add-list').on('click',add_list);  
+}
+
+
+$('#btn-add-list').on('click',add_list);  
+</script>
 </body>
 </html>

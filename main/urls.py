@@ -8,5 +8,6 @@ urlpatterns = [
     path('team/create/', views.TeamView.as_view(), name='create'),
     path('team/<int:id>/', views.TeamView.as_view(), name='team'),
     path('board/create/', views.BoardView.as_view(), name='board'),
-    path('board/<int:id>', views.BoardView.as_view(), name='board_view')
+    path('board/<int:id>', views.BoardView.as_view(), name='board_view'),
+    path('board/create/list/<int:board_id>/', views.ListView.as_view(), name='list_create'),
 ]

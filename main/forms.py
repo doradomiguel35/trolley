@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team
+from .models import Board, Team, List
 from users.models import User
 
 
@@ -12,7 +12,7 @@ class BoardForms(forms.ModelForm):
 
     class Meta:
         model = Board
-        fields = ('title', 'visibility', 'description', 'team')
+        fields = ('title', 'visibility', 'description', 'team',)
 
 
 class TeamForms(forms.ModelForm):
@@ -24,4 +24,16 @@ class TeamForms(forms.ModelForm):
 
     class Meta:
         model = Team
-        fields = ('name', 'description', 'website')
+        fields = ('name', 'description', 'website',)
+
+
+class ListForms(forms.ModelForm):
+    """
+    List forms
+    """
+
+    class Meta:
+        model = List
+        fields = ('name',)
+
+

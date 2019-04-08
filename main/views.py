@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Board, Team
-from .forms import BoardForms, TeamForms
+from .models import Board, Team, List, Ticket
+from .forms import BoardForms, TeamForms, ListForms
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView
 from django.http import JsonResponse
@@ -56,15 +56,24 @@ class BoardView(TemplateView):
     """
     team_form = TeamForms()
     board_form = BoardForms()
+    list_form = ListForms()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
         team = self.request.user.teams.all()
-
+        lists = List.objects.filter(board_id=board.id)
+        tickets = Ticket.objects.filter(lists_id__in=lists)
+        import pdb; pdb.set_trace()
+        
         return render(self.request, 'board/board.html',
             {'user': self.request.user,
              'board': board,
-             'team': team})
+             'team': team,
+             'lists': lists,
+             'tickets': tickets,
+             'list_form': self.list_form,
+             'board_form': self.board_form,
+             'team_form': self.list_form})
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -89,4 +98,20 @@ class BoardView(TemplateView):
              'board_form': self.board_form,
              'teams': teams,
              'boards': boards})
+
+
+class ListView(TemplateView):
+    """
+    List View
+    """
+
+    def post(self, *args, **kwargs):
+        list_form = ListForms(self.request.POST)
+        if list_form.is_valid():
+            lists = List(name=list_form.cleaned_data['name'],
+                board_id=kwargs.get('board_id'))
+            lists.save()
+
+
+
 
