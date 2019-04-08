@@ -33,43 +33,32 @@
     {% endblock content %}
 
     <div class="modal fade" id="addBoard" tabindex="-1" role="dialog" aria-labelledby="addBoardLabel" aria-hidden="true">
-      <form>
+      <form action="{% url 'main:board' %}" method="post">
         {% csrf_token %}
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <input type="text" class="form-control" placeholder="Add board title">
+            {% render_field board_form.title class+="form-control" placeholder="Add board title" %}
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body"> 
             <div class="form-group">
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Description(Optional)"></textarea>
+                {% render_field board_form.description class+="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Description (Optional)" %}
             </div><br>
             <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Team
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">No Team</a>
-              </div>
+              {% render_field board_form.team class+="btn btn-secondary dropdown-toggle" %}
             </div>
             <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Visibility
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Private</a>
-                <a class="dropdown-item" href="#">Public</a>
+              {% render_field board_form.visibility class+="btn btn-secondary dropdown-toggle" %}
               </div>
-            </div>
             <span></span><br>
              
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Add Board</button>
+            <button type="submit" class="btn btn-primary">Add Board</button>
           </div>
         </div>
       </div>
@@ -77,7 +66,7 @@
     </div>
 
     <div class="modal fade" id="createTeam" tabindex="-1" role="dialog" aria-labelledby="createBoardLabel" aria-hidden="true">
-      <form action="{% url 'main:board' %}" method="post">
+      <form action="{% url 'main:create' %}" method="post">
         {% csrf_token %}
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -106,5 +95,125 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="{% static 'js/main.js' %}" ></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+
+function add_list(event){
+  event.preventDefault()
+  console.log('add list ajax');
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    type: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#inserted-list').after(`
+        <div id="list-`+data.id+`" class="list">
+          <h3 class="list-title">`+data.name+`</h3>
+          <ul id="ul-`+data.id+`" class="list-items"> 
+          </ul>
+          <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+        </div>
+        `);
+      $('#insert-list').empty();
+      $('.lists-container').append(
+        `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>`);
+      $('#btn-add-list').on('click',add_list_form);  
+      $('.add-card-btn').click(add_card_form);
+    }
+  });
+}
+
+function close_add_list(event){
+  event.preventDefault();
+  console.log('closed add list');
+  $('#insert-list').empty();
+  $('.lists-container').append(
+    `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>
+  `);
+  $('#btn-add-list').on('click',add_list_form);  
+}
+
+function add_list_form(event){
+  event.preventDefault();
+  console.log('clicked add list form');
+  $('.add-list-btn').remove();
+  $('#insert-list').append(
+    $(`<div class="list">
+      <h3 class="list-title">Name new List</h3>
+      <ul class="list-items">
+        <form method="post" // action="/main/board/create/list/{{board.id}}/" id="add-list-ajax">
+        {% csrf_token %}
+        {% render_field list_form.name class+="form-control" placeholder="Name new list" %}
+        <br>
+        <button class="btn btn-primary" type="submit">Submit</button> 
+        <button id="close-add" class="btn btn-danger close-add">x</button>
+        </form>
+      </ul>
+      </div>`)
+
+  );
+  $('#close-add').on('click',close_add_list);
+  $('#add-list-ajax').submit(add_list); 
+}
+
+function add_card(event){
+  event.preventDefault();
+  var list_id = $(this).attr('value'); 
+  console.log(list_id);
+  var url = $(this).attr('action');
+  $.ajax({
+    url: url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#ul-'+list_id).append(`
+        <li id=`+data.id+`>`+data.name+`</li>
+      `);
+      $('#add-card-form-'+list_id).replaceWith(`
+          <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
+      
+      $('.add-card-btn').click(add_card_form);
+    }
+  });
+}
+
+function add_card_form(event){
+  event.preventDefault();
+  console.log('clicked add card form');
+  var list_id=$(this).attr('value');
+  console.log(list_id);
+  $(this).replaceWith(`
+    <div class="add-card-form" id="add-card-form-`+list_id+`">
+    <form method="post" value=`+list_id+` action="/main/board/create/card/`+list_id+`/" class="add-card-ajax">
+      {% csrf_token %}
+      {% render_field ticket_form.name class+="form-control" placeholder="Name new list" %}
+      <br>
+      <button class="btn btn-primary" type="submit">Submit</button>
+      <button class="btn btn-danger" id="close-add-card-form" value=`+list_id+`>X</button> 
+    </form>
+    </div>
+  `);
+  $('.btn.btn-danger').on('click',close_card_form);
+  $('.add-card-ajax').submit(add_card);
+}
+
+function close_card_form(event){
+  event.preventDefault();
+  list_id = $(this).attr('value');
+  $('#add-card-form-'+list_id).replaceWith(`
+    <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+  `);
+
+  $('.add-card-btn').on('click',add_card_form);
+}
+
+
+$('.add-card-btn').click(add_card_form);
+$('#btn-add-list').on('click',add_list_form); 
+
+</script>
 </body>
 </html>

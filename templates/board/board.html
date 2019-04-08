@@ -1,0 +1,38 @@
+{% extends 'main/home.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<body style="background-color: #0079bf">
+	<div class="board-nav">
+		<h1 class="board-nav-title" style="margin-right: 10px;">{{ board.title }} &nbsp|</h1>
+		<h1 class="board-nav-title">|&nbsp {{ board.visibility}} &nbsp</h1>
+		<button type="button" class="btn btn-success" >Members</button>
+	</div>
+	
+	<section class="lists-container">
+
+	{% for list in lists %}
+	<div id="list-{{ list.id }}" class="list">
+
+		<h3 class="list-title">{{ list.name }}</h3>
+		
+		<ul id="ul-{{ list.id }}" class="list-items">
+			{% for ticket in tickets %}
+				{% if ticket.lists_id == list.id %}
+				<li id="{{ticket.id}}"> {{ ticket.name }} </li>
+				{% endif %}
+			{% endfor %}
+			
+		</ul>
+		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+	</div>
+	{% endfor %}
+	<span id="inserted-list"></span>
+	<span id="insert-list"></span>
+	
+	<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>
+</body>
+{% endblock content %}
+
+
