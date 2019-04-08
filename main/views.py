@@ -88,11 +88,21 @@ class BoardView(TemplateView):
                     owner_id=self.request.user.id)
             board.save()
             team = self.request.user.teams.all()
+            lists = List.objects.filter(board_id=board.id)
+            tickets = Ticket.objects.filter(lists_id__in=lists)
+
+
 
             return render(self.request, 'board/board.html',
-                {'board':board,
-                 'user':self.request.user,
-                 'teams': team})    
+                {'user': self.request.user,
+                 'board': board,
+                 'team': team,
+                 'lists': lists,
+                 'tickets': tickets,
+                 'list_form': self.list_form,
+                 'board_form': self.board_form,
+                 'team_form': self.list_form,
+                 'ticket_form': self.ticket_form})    
 
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
