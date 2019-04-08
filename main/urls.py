@@ -10,4 +10,5 @@ urlpatterns = [
     path('board/create/', views.BoardView.as_view(), name='board'),
     path('board/<int:id>', views.BoardView.as_view(), name='board_view'),
     path('board/create/list/<int:board_id>/', views.ListView.as_view(), name='list_create'),
+    path('board/create/card/<int:list_id>/', views.TicketView.as_view(), name='card_create'),
 ]

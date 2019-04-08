@@ -16,18 +16,16 @@
 	<div id="list-{{ list.id }}" class="list">
 
 		<h3 class="list-title">{{ list.name }}</h3>
-
-		<ul id="list-{{ list.name }}-{{ list.id }}" class="list-items">
+		
+		<ul id="ul-{{ list.id }}" class="list-items">
 			{% for ticket in tickets %}
 				{% if ticket.lists_id == list.id %}
-				<li> {{ ticket.name }} </li>
+				<li id="{{ticket.id}}"> {{ ticket.name }} </li>
 				{% endif %}
 			{% endfor %}
 			
 		</ul>
-
-			<button id="btn-add-card" class="add-card-btn btn">Add a card</button>
-
+		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
 	</div>
 	{% endfor %}
 	<span id="inserted-list"></span>

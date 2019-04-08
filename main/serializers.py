@@ -25,3 +25,12 @@ class TicketSerializer(serializers.ModelSerializer):
 			'name',
 			'description'
 		)
+
+
+class TicketCreationSerializer(serializers.ModelSerializer):
+	"""
+	Ticket Creation serializer
+	"""
+	class Meta:
+		model = Ticket
+		fields = ('name',)

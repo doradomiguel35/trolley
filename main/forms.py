@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team, List
+from .models import Board, Team, List, Ticket
 from users.models import User
 
 
@@ -35,5 +35,25 @@ class ListForms(forms.ModelForm):
     class Meta:
         model = List
         fields = ('name',)
+
+
+class TicketCreationForms(forms.ModelForm):
+    """
+    Card forms
+    """
+
+    class Meta:
+        model = Ticket 
+        fields = ('name',)
+
+
+class TicketForms(forms.ModelForm):
+    """
+    Ticket forms
+    """
+
+    class Meta:
+        model = Ticket
+        fields = ('name','description',)
 
 

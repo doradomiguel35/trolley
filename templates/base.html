@@ -112,22 +112,23 @@ function add_list(event){
       $('#inserted-list').after(`
         <div id="list-`+data.id+`" class="list">
           <h3 class="list-title">`+data.name+`</h3>
-          <ul id="list-`+data.name+`-`+data.id+`" class="list-items"> 
+          <ul id="ul-`+data.id+`" class="list-items"> 
           </ul>
-          <button id="btn-add-card" class="add-card-btn btn">Add a card</button>
+          <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
         </div>
         `);
       $('#insert-list').empty();
       $('.lists-container').append(
         `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>`);
       $('#btn-add-list').on('click',add_list_form);  
+      $('.add-card-btn').click(add_card_form);
     }
   });
 }
 
 function close_add_list(event){
   event.preventDefault();
-  console.log('clicked close');
+  console.log('closed add list');
   $('#insert-list').empty();
   $('.lists-container').append(
     `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>
@@ -137,29 +138,81 @@ function close_add_list(event){
 
 function add_list_form(event){
   event.preventDefault();
-  console.log('clicked');
+  console.log('clicked add list form');
   $('.add-list-btn').remove();
   $('#insert-list').append(
     $(`<div class="list">
-      <h3 class="list-title">Name new List &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp<span><button id="close-add" class="btn btn-primary close-add">x</button></span></h3>
+      <h3 class="list-title">Name new List</h3>
       <ul class="list-items">
-    <form method="post" // action="/main/board/create/list/{{board.id}}/" id="add-list-ajax">
-      {% csrf_token %}
-      {% render_field list_form.name class+="form-control" placeholder="Name new list" %}
-      <br>
-      <button class="btn btn-primary" type="submit">Submit</button> 
-    </form>
-      </div>
-      </ul>`)
+        <form method="post" // action="/main/board/create/list/{{board.id}}/" id="add-list-ajax">
+        {% csrf_token %}
+        {% render_field list_form.name class+="form-control" placeholder="Name new list" %}
+        <br>
+        <button class="btn btn-primary" type="submit">Submit</button> 
+        <button id="close-add" class="btn btn-danger close-add">x</button>
+        </form>
+      </ul>
+      </div>`)
 
   );
   $('#close-add').on('click',close_add_list);
   $('#add-list-ajax').submit(add_list); 
 }
 
+function add_card(event){
+  event.preventDefault();
+  var list_id = $(this).attr('value'); 
+  console.log(list_id);
+  var url = $(this).attr('action');
+  $.ajax({
+    url: url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#ul-'+list_id).append(`
+        <li id=`+data.id+`>`+data.name+`</li>
+      `);
+      $('#add-card-form-'+list_id).replaceWith(`
+          <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
+      
+      $('.add-card-btn').click(add_card_form);
+    }
+  });
+}
+
+function add_card_form(event){
+  event.preventDefault();
+  console.log('clicked add card form');
+  var list_id=$(this).attr('value');
+  console.log(list_id);
+  $(this).replaceWith(`
+    <div class="add-card-form" id="add-card-form-`+list_id+`">
+    <form method="post" value=`+list_id+` action="/main/board/create/card/`+list_id+`/" class="add-card-ajax">
+      {% csrf_token %}
+      {% render_field ticket_form.name class+="form-control" placeholder="Name new list" %}
+      <br>
+      <button class="btn btn-primary" type="submit">Submit</button>
+      <button class="btn btn-danger" id="close-add-card-form" value=`+list_id+`>X</button> 
+    </form>
+    </div>
+  `);
+  $('.btn.btn-danger').on('click',close_card_form);
+  $('.add-card-ajax').submit(add_card);
+}
+
+function close_card_form(event){
+  event.preventDefault();
+  list_id = $(this).attr('value');
+  $('#add-card-form-'+list_id).replaceWith(`
+    <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+  `);
+
+  $('.add-card-btn').on('click',add_card_form);
+}
 
 
-$('#btn-add-list').on('click',add_list_form);  
+$('.add-card-btn').click(add_card_form);
+$('#btn-add-list').on('click',add_list_form); 
 
 </script>
 </body>

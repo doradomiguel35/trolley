@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from .models import Board, Team, List, Ticket
-from .forms import BoardForms, TeamForms, ListForms
+from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView
 from django.http import JsonResponse
-from .serializers import ListSerializer, TicketSerializer
+from .serializers import ListSerializer, TicketCreationSerializer
 
 
 class TeamView(TemplateView):
@@ -58,6 +58,7 @@ class BoardView(TemplateView):
     team_form = TeamForms()
     board_form = BoardForms()
     list_form = ListForms()
+    ticket_form = TicketCreationForms()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -74,7 +75,8 @@ class BoardView(TemplateView):
              'tickets': tickets,
              'list_form': self.list_form,
              'board_form': self.board_form,
-             'team_form': self.list_form})
+             'team_form': self.list_form,
+             'ticket_form': self.ticket_form})
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -115,6 +117,24 @@ class ListView(TemplateView):
             serialize = ListSerializer(lists)
 
             return JsonResponse(serialize.data, safe=False)
+
+
+class TicketView(TemplateView):
+    """
+    Ticket view
+    """
+
+    def post(self, *args, **kwargs):
+        ticket_form = TicketCreationForms(self.request.POST)
+        if ticket_form.is_valid():
+            ticket = Ticket(name=ticket_form.cleaned_data['name'],
+                lists_id=kwargs.get('list_id'))
+            ticket.save()
+
+            serialize = TicketCreationSerializer(ticket)
+
+            return JsonResponse(serialize.data, safe=False)
+
 
 
 
