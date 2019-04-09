@@ -77,8 +77,8 @@ class SignUpView(TemplateView):
             user.save()
 
             user = authenticate(
-                username=form.cleaned_data.get('email'),
-                password=form.cleaned_data.get('password'))
+                username=forms.cleaned_data.get('email'),
+                password=forms.cleaned_data.get('password'))
             login(request, user)
             team_form = TeamForms()
             board_form = BoardForms()

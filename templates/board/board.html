@@ -20,10 +20,13 @@
 		<ul id="ul-{{ list.id }}" class="list-items">
 			{% for ticket in tickets %}
 				{% if ticket.lists_id == list.id %}
-				<li id="{{ticket.id}}"> {{ ticket.name }} </li>
+				<form method="get" action="{% url 'main:ticket_view' ticket.id %}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+					<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}" class="modal-li-draggable"> 
+						{{ ticket.name }}
+					</li>
+				</form>
 				{% endif %}
 			{% endfor %}
-			
 		</ul>
 		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
 	</div>

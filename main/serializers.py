@@ -1,4 +1,4 @@
-from .models import Board, Team, List, Ticket
+from .models import Board, Team, List, Ticket, Comment
 from rest_framework import serializers
 
 
@@ -22,8 +22,10 @@ class TicketSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Ticket
 		fields = (
+			'id',
 			'name',
-			'description'
+			'description',
+			'lists',
 		)
 
 
@@ -33,4 +35,27 @@ class TicketCreationSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Ticket
-		fields = ('name',)
+		fields = ('id','name',)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+	"""
+	Comment Serializer
+	"""
+	class Meta:
+		model = Comment
+		fields = (
+			'id',
+			'user',
+			'comment',
+			'ticket',
+		)
+
+
+class TicketDescSerializer(serializers.ModelSerializer):
+	"""
+	Ticket Description Serializer
+	"""
+	class Meta:
+		model = Ticket
+		fields = ('description',)

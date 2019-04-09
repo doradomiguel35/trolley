@@ -11,4 +11,7 @@ urlpatterns = [
     path('board/<int:id>', views.BoardView.as_view(), name='board_view'),
     path('board/create/list/<int:board_id>/', views.ListView.as_view(), name='list_create'),
     path('board/create/card/<int:list_id>/', views.TicketView.as_view(), name='card_create'),
+    path('board/view/card/<int:ticket_id>/',views.TicketView.as_view(), name='ticket_view'),
+    path('board/view/card/comment/<int:ticket_id>/', views.CommentView.as_view(), name='ticket_comment'),
+    path('board/view/card/description/<int:ticket_id>/', views.UpdateDescTicketView.as_view(), name='ticket_description'),
 ]
