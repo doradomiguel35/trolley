@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team, List, Ticket
+from .models import Board, Team, List, Ticket, Comment
 from users.models import User
 
 
@@ -55,5 +55,27 @@ class TicketForms(forms.ModelForm):
     class Meta:
         model = Ticket
         fields = ('name','description',)
+
+
+class TicketDescForms(forms.ModelForm):
+    """
+    Ticket description
+    """
+    description = forms.CharField(widget=forms.Textarea, required=False)
+
+    class Meta:
+        model = Ticket
+        fields = ('description',)
+
+
+class CommentForms(forms.ModelForm):
+    """
+    Comment forms
+    """
+    comment = forms.CharField(widget=forms.Textarea, required=False)
+
+    class Meta:
+        model = Comment
+        fields = ('comment',)
 
 

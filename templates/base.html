@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">   -->
 
 </head>
 <body>
@@ -91,15 +92,31 @@
       </form>
     </div>
 
+    <div id="ticketModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" >
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body" id="ticket-modal-body">
+            <div id="insert-modal-ticket" class="container">
+              
+              <!-- modal content for viewing tickets -->
+            </div>
+          </div>
+        </div>
+      </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-<script src="{% static 'js/main.js' %}" ></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
 
 <script>
-
 function add_list(event){
   event.preventDefault()
   console.log('add list ajax');
@@ -116,7 +133,7 @@ function add_list(event){
           </ul>
           <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
         </div>
-        `);
+        `); 
       $('#insert-list').empty();
       $('.lists-container').append(
         `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>`);
@@ -156,7 +173,7 @@ function add_list_form(event){
 
   );
   $('#close-add').on('click',close_add_list);
-  $('#add-list-ajax').submit(add_list); 
+  $('#add-list-ajax').on('submit',add_list); 
 }
 
 function add_card(event){
@@ -177,7 +194,8 @@ function add_card(event){
 
       $('.add-card-btn').click(add_card_form);
     }
-  });
+  }).done();
+  event.stopImmediatePropagation();
 }
 
 function add_card_form(event){
@@ -197,7 +215,7 @@ function add_card_form(event){
     </div>
   `);
   $('.btn.btn-danger').on('click',close_card_form);
-  $('.add-card-ajax').submit(add_card);
+  $('.add-card-ajax').on('submit',add_card);
 }
 
 function close_card_form(event){
@@ -206,7 +224,7 @@ function close_card_form(event){
   $('#add-card-form-'+list_id).replaceWith(`
     <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
   `);
-
+  
   $('.add-card-btn').on('click',add_card_form);
 }
 
@@ -225,7 +243,100 @@ function drop(ev) {
   ev.target.appendChild(document.getElementById(data));
 }
 
+function modalClick(event){
+  event.preventDefault();
+  console.log('clicked modal');
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      var comments='';
+      if(data.description === ''){
+        data.description = `
+          <br>
+          <form method="post" action="/main/board/view/card/description/`+data.id+`/" class="description">
+            {% csrf_token %}
+            {% render_field ticket_desc_form.description class+='form-control' rows='5' placeholder="This ticket has no description, write one" %}
+            <button class="btn btn-primary" type="submit">Submit  </button>
+          </form>`;
+      }
 
+      for(var i = 0; i < data.comment.length; i++){
+        comments+=`<h1 class="login-forms" style="font-size:16px; ">
+           `+data.comment[i].user__first_name+`
+          </h1>
+            <div class="alert alert-primary" role="alert" style="text-align: left;">
+            `+data.comment[i].comment+`
+            </div>
+            <button class="btn btn-primary" style="display:inline-block">Edit</button>
+            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+            <hr>`;
+
+      }
+         
+      $('#insert-modal-ticket').append(`
+         <div class="panel panel-default">
+            <div class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;"">apps</i>
+             `+data.name+`
+            </div>
+          </div>
+        <br><br><br>
+        <div class="panel panel-default">
+          <div class="panel-body">
+          <i class="material-icons" style="font-size:20px">description</i>
+          Description
+          <br>
+          <h1 class="login-forms" style="font-size: 16px;">`+data.description+`</h1>
+          </div>
+        </div><br><br>
+        <div class="panel panel-default">
+          <div class="panel-body">  
+            <i class="material-icons" style="font-size:20px">insert_comment</i>
+            Add a comment 
+            <br><br>
+            <h1 class="login-forms">
+            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" class="comment">
+              {% csrf_token %}
+              {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" %}
+              <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+            </h1>
+          </div>
+        </div><br><br>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
+            Activity
+            `+comments+`
+            
+          </div>
+        </div>
+      `);
+    }
+  });
+}
+
+function commentTicket(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){}
+  })
+}
+
+function closeModalTicket(event){
+  $('#insert-modal-ticket').empty();
+}
+
+
+//events
+$('.ticket-modal').on('click',modalClick);
+$('.close').on('click', closeModalTicket);
 $('.add-card-btn').click(add_card_form);
 $('#btn-add-list').on('click',add_list_form); 
 

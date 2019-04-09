@@ -401,9 +401,8 @@ footer {
 
 }
 
-.drag{
-	border: 1px solid #004d40;
-	background-color: #e0f2f1;
-}
 
+.ticket-modal{
+	margin-bottom: 5px;
+}
 

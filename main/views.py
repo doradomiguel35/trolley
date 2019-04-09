@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from .models import Board, Team, List, Ticket
-from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms
+from .models import Board, Team, List, Ticket, Comment
+from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView
 from django.http import JsonResponse
-from .serializers import ListSerializer, TicketCreationSerializer
+from .serializers import ListSerializer, TicketCreationSerializer, TicketSerializer, CommentSerializer, TicketDescSerializer
 
 
 class TeamView(TemplateView):
@@ -59,6 +59,8 @@ class BoardView(TemplateView):
     board_form = BoardForms()
     list_form = ListForms()
     ticket_form = TicketCreationForms()
+    comment_form = CommentForms()
+    ticket_desc_form = TicketDescForms()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -76,7 +78,9 @@ class BoardView(TemplateView):
              'list_form': self.list_form,
              'board_form': self.board_form,
              'team_form': self.list_form,
-             'ticket_form': self.ticket_form})
+             'ticket_form': self.ticket_form,
+             'comment_form': self.comment_form,
+             'ticket_desc_form': self.ticket_desc_form})
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -102,7 +106,10 @@ class BoardView(TemplateView):
                  'list_form': self.list_form,
                  'board_form': self.board_form,
                  'team_form': self.list_form,
-                 'ticket_form': self.ticket_form})    
+                 'ticket_form': self.ticket_form,
+                 'comment_form': self.comment_form,
+                 'ticket_desc_form': self.ticket_desc_form})
+  
 
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
@@ -134,6 +141,22 @@ class TicketView(TemplateView):
     Ticket view
     """
 
+    def get(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        comments = Comment.objects.filter(
+            ticket_id=kwargs.get('ticket_id')).values('user_id','user__first_name','user__last_name','comment','ticket_id')
+
+        try:
+            serialize = TicketSerializer(ticket).data
+            serialize['comment']= list(comments)
+            return JsonResponse(serialize, safe=False)
+
+        except:
+            serialize = TicketSerializer(ticket).data
+            return JsonResponse(serialize, safe=False)
+
+           
+
     def post(self, *args, **kwargs):
         ticket_form = TicketCreationForms(self.request.POST)
         if ticket_form.is_valid():
@@ -144,6 +167,45 @@ class TicketView(TemplateView):
             serialize = TicketCreationSerializer(ticket)
 
             return JsonResponse(serialize.data, safe=False)
+
+
+class UpdateDescTicketView(TemplateView):
+    """
+    update description of the ticket ticket
+    """
+
+    def post(self, *args, **kwargs):
+        ticket_desc_form = TicketDescForms(self.request.POST)
+        if ticket_desc_form.is_valid():
+            ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+            ticket.description = ticket_desc_form.cleaned_data['description']
+            ticket.save()
+            
+            serialize = TicketDescSerializer(ticket).data
+            return JsonResponse(serialize, safe=False)
+            
+
+
+
+
+class CommentView(TemplateView):
+    """
+    Comment view
+    """
+
+    def post(self, *args, **kwargs):
+        comment_form = CommentForms(self.request.POST)
+        if comment_form.is_valid():
+            comment = Comment(user_id=self.request.user.id,
+                comment=comment_form.cleaned_data['comment'],
+                ticket_id=kwargs.get('ticket_id'))
+
+            serialize = CommentSerializer(comment).data
+            return JsonResponse(serialize, safe=False)
+
+
+
+
 
 
 
