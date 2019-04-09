@@ -306,14 +306,15 @@ function modalClick(event){
           </div>
         </div><br><br>
         <div class="panel panel-default">
-          <div class="panel-body">
+          <div id="comment_section" class="panel-body">
             <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
             Activity
             `+comments+`
-            
           </div>
         </div>
       `);
+
+      $('.comment').submit(addComment);
     }
   });
 }
@@ -331,6 +332,30 @@ function commentTicket(event){
 
 function closeModalTicket(event){
   $('#insert-modal-ticket').empty();
+}
+
+function addComment(event){
+  event.preventDefault();
+  var url=$(this).attr('action');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#comment_section').append(`
+        <h1 class="login-forms" style="font-size:16px; ">
+           `+data.first_name+`&nbsp`+data.last_name+`
+          </h1>
+            <div class="alert alert-primary" role="alert" style="text-align: left;">
+            `+data.comment+`
+            </div>
+            <button class="btn btn-primary" style="display:inline-block">Edit</button>
+            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+            <hr>
+      `);
+
+    }
+  })
 }
 
 

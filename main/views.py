@@ -199,8 +199,10 @@ class CommentView(TemplateView):
             comment = Comment(user_id=self.request.user.id,
                 comment=comment_form.cleaned_data['comment'],
                 ticket_id=kwargs.get('ticket_id'))
-
+            comment.save()
             serialize = CommentSerializer(comment).data
+            serialize['first_name'] = self.request.user.first_name
+            serialize['last_name'] = self.request.user.last_name
             return JsonResponse(serialize, safe=False)
 
 
