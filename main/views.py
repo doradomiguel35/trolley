@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment
-from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms, EditCommentForms
+from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms, EditCommentForms, SearchForm
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
-from .serializers import ListSerializer, TicketCreationSerializer, TicketSerializer, CommentSerializer, TicketDescSerializer, CommentEditSerializer
+from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
+    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer)
 
 
 class TeamView(TemplateView):
@@ -39,13 +40,15 @@ class MainView(TemplateView):
     def get(self, *args, **kwargs):
         team_form = TeamForms()
         board_form = BoardForms()
+        search_form = SearchForm()
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
         return render(self.request, 'main/home.html',
             {'team_form': team_form,
              'board_form': board_form,
              'teams': teams,
-             'boards': boards})
+             'boards': boards,
+             'search_form': search_form})
 
     def post(self, request, *args, **kwargs):
         team_form = TeamForms(request.POST)
@@ -61,6 +64,7 @@ class BoardView(TemplateView):
     ticket_form = TicketCreationForms()
     comment_form = CommentForms()
     ticket_desc_form = TicketDescForms()
+    search_form = SearchForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -80,7 +84,8 @@ class BoardView(TemplateView):
              'team_form': self.list_form,
              'ticket_form': self.ticket_form,
              'comment_form': self.comment_form,
-             'ticket_desc_form': self.ticket_desc_form})
+             'ticket_desc_form': self.ticket_desc_form,
+             'search_form': self.search_form})
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -108,7 +113,8 @@ class BoardView(TemplateView):
                  'team_form': self.list_form,
                  'ticket_form': self.ticket_form,
                  'comment_form': self.comment_form,
-                 'ticket_desc_form': self.ticket_desc_form})
+                 'ticket_desc_form': self.ticket_desc_form,
+                 'search_form': self.search_form})
   
 
         teams = self.request.user.teams.all()
@@ -225,3 +231,16 @@ class EditComment(View):
             comment.save()
             serialize = CommentEditSerializer(comment).data
             return JsonResponse(serialize, safe=False)
+
+
+class SearchBoardView(View):
+    """
+    Search board view
+    """
+
+    def post(self, *args, **kwargs):
+        search_form = SearchForm(self.request.POST)
+        if search_form.is_valid():
+            board = Board.objects.filter(title=search_form.cleaned_data['title'])
+
+            import pdb;pdb.set_trace()

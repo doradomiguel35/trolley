@@ -90,3 +90,12 @@ class EditCommentForms(forms.ModelForm):
         fields = ('comment',)
 
 
+class SearchForm(forms.ModelForm):
+    """
+    Search Form for board
+    """
+
+    class Meta:
+        model = Board
+        fields = ('title',)
+

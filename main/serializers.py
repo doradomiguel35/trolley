@@ -69,3 +69,12 @@ class CommentEditSerializer(serializers.ModelSerializer):
 		model = Comment
 		fields = ('comment',)
 
+
+class BoardSerializer(serializers.ModelSerializer):
+	"""
+	board serializer
+	"""
+	class Meta:
+		model = Board
+		fields = ('title',)
+
