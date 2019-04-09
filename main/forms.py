@@ -79,3 +79,14 @@ class CommentForms(forms.ModelForm):
         fields = ('comment',)
 
 
+class EditCommentForms(forms.ModelForm):
+    """
+    Edit commen form
+    """
+    comment = forms.CharField(widget=forms.Textarea, required=True)
+
+    class Meta:
+        model = Comment
+        fields = ('comment',)
+
+

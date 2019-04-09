@@ -59,3 +59,13 @@ class TicketDescSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Ticket
 		fields = ('description',)
+
+
+class CommentEditSerializer(serializers.ModelSerializer):
+	"""
+	comment edit serializer
+	"""
+	class Meta:
+		model = Comment
+		fields = ('comment',)
+

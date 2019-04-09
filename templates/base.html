@@ -202,7 +202,7 @@ function add_card_form(event){
   event.preventDefault();
   console.log('clicked add card form');
   var list_id=$(this).attr('value');
-  console.log(list_id);
+
   $(this).replaceWith(`
     <div class="add-card-form" id="add-card-form-`+list_id+`">
     <form method="post" value=`+list_id+` action="/main/board/create/card/`+list_id+`/" class="add-card-ajax">
@@ -252,8 +252,10 @@ function modalClick(event){
     data: $(this).serialize(),
     success: function(data){
       var comments='';
+      var description='';
       if(data.description === ''){
-        data.description = `
+        console.log(true);
+        description = `
           <br>
           <form method="post" action="/main/board/view/card/description/`+data.id+`/" class="description">
             {% csrf_token %}
@@ -262,17 +264,24 @@ function modalClick(event){
           </form>`;
       }
 
+      else{
+        description = data.description+`<hr><button class="btn btn-primary">Edit </button>`;
+      }
+      
       for(var i = 0; i < data.comment.length; i++){
-        comments+=`<h1 class="login-forms" style="font-size:16px; ">
-           `+data.comment[i].user__first_name+`
+
+        comments+=`<div class="editComment" id="editComment`+data.comment[i].id+`" value=`+data.comment[i].id +`>
+          <h1 class="login-forms" style="font-size:16px; ">
+          `+data.comment[i].user__first_name+`
           </h1>
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment[i].comment+`
             </div>
-            <button class="btn btn-primary" style="display:inline-block">Edit</button>
-            <button class="btn btn-danger" style="display:inline-block">Delete</button>
-            <hr>`;
 
+            <button value="`+data.comment[i].id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
+            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+          </div>
+            <hr>`;
       }
          
       $('#insert-modal-ticket').append(`
@@ -287,8 +296,8 @@ function modalClick(event){
           <div class="panel-body">
           <i class="material-icons" style="font-size:20px">description</i>
           Description
-          <br>
-          <h1 class="login-forms" style="font-size: 16px;">`+data.description+`</h1>
+          <hr>
+          <h1 id="createDescription" class="login-forms" style="font-size: 16px;">`+description+`</h1>
           </div>
         </div><br><br>
         <div class="panel panel-default">
@@ -309,25 +318,17 @@ function modalClick(event){
           <div id="comment_section" class="panel-body">
             <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
             Activity
+            <hr>
             `+comments+`
           </div>
         </div>
       `);
 
       $('.comment').submit(addComment);
+      $('.description').submit(writeDescription);
+      $('.editCommentBtn').on('click', editComment_form);
     }
   });
-}
-
-function commentTicket(event){
-  event.preventDefault();
-  var url = $(this).attr('action');
-  $.ajax({
-    url:url,
-    method: "POST",
-    data: $(this).serialize(),
-    success: function(data){}
-  })
 }
 
 function closeModalTicket(event){
@@ -355,7 +356,70 @@ function addComment(event){
       `);
 
     }
+  });
+  event.stopImmediatePropagation();
+}
+
+function writeDescription(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#createDescription').empty();
+      $('#createDescription').append(`
+        `+data.description+`<hr><button class="btn btn-primary">Edit</button>
+      `);
+    }
   })
+}
+
+function editComment_form(event){
+  event.preventDefault();
+  var comment_id= $(this).attr('value');
+  console.log(comment_id);
+  $('#editComment'+comment_id).empty();
+  $('#editComment'+comment_id).append(`
+    <form method="post" action="/main/board/view/card/comment/edit/`+comment_id+`/" class="form-edit-comment" >
+    {% csrf_token %}
+      {% render_field comment_form.comment rows="3" class+="form-control" placeholder="Edit Comment" %}
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </form> <span></span>
+    <form method="get" action="/main/board/view/card/comment/get/`+comment_id+`/" class="form-edit-close" >
+      <button class="btn btn-danger" type="submit">Cancel</button>
+    </form>
+  `);
+   $('.form-edit-close').submit(closeEditComment_form);
+}
+
+function closeEditComment_form(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      $('#editComment'+data.id).empty();
+      $('#editComment'+data.id).append(`
+        <h1 class="login-forms" style="font-size:16px; ">
+          `+data.first_name+`
+          </h1>
+            <div class="alert alert-primary" role="alert" style="text-align: left;">
+            `+data.comment+`
+            </div>
+            
+            <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
+            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+          </div>
+            <hr>
+      `);
+      $('.editCommentBtn').on('click', editComment_form);
+    }
+
+  });
 }
 
 

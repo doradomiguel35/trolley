@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment
-from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms
+from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms, EditCommentForms
 from trolley.settings import AUTH_USER_MODEL
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.http import JsonResponse
-from .serializers import ListSerializer, TicketCreationSerializer, TicketSerializer, CommentSerializer, TicketDescSerializer
+from .serializers import ListSerializer, TicketCreationSerializer, TicketSerializer, CommentSerializer, TicketDescSerializer, CommentEditSerializer
 
 
 class TeamView(TemplateView):
@@ -144,7 +144,7 @@ class TicketView(TemplateView):
     def get(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
         comments = Comment.objects.filter(
-            ticket_id=kwargs.get('ticket_id')).values('user_id','user__first_name','user__last_name','comment','ticket_id')
+            ticket_id=kwargs.get('ticket_id')).values('id','user_id','user__first_name','user__last_name','comment','ticket_id')
 
         try:
             serialize = TicketSerializer(ticket).data
@@ -185,13 +185,19 @@ class UpdateDescTicketView(TemplateView):
             return JsonResponse(serialize, safe=False)
             
 
-
-
-
 class CommentView(TemplateView):
     """
     Comment view
     """
+
+    def get(self, *args, **kwargs):
+        comment = Comment.objects.get(id=kwargs.get('comment_id'))
+        serialize = CommentSerializer(comment).data
+        serialize['first_name'] = comment.user.first_name
+        serialize['last_name'] = comment.user.last_name
+
+        return JsonResponse(serialize, safe=False)
+
 
     def post(self, *args, **kwargs):
         comment_form = CommentForms(self.request.POST)
@@ -206,10 +212,16 @@ class CommentView(TemplateView):
             return JsonResponse(serialize, safe=False)
 
 
+class EditComment(View):
+    """
+    Edit comment
+    """
 
-
-
-
-
-
-
+    def post(self, *args, **kwargs):
+        comment_form = EditCommentForms(self.request.POST)
+        if comment_form.is_valid():
+            comment = Comment.objects.get(id=kwargs.get('comment_id'))
+            comment.comment = comment_form.cleaned_data['comment']
+            comment.save()
+            serialize = CommentEditSerializer(comment).data
+            return JsonResponse(serialize, safe=False)
