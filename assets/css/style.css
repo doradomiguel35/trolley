@@ -432,5 +432,6 @@ footer {
 
 .searchPlacement{
 	display: inline-block;
+	position: absolute;
 }
 

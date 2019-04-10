@@ -73,10 +73,33 @@ class CommentForms(forms.ModelForm):
     Comment forms
     """
     comment = forms.CharField(widget=forms.Textarea, required=False)
+    image = forms.ImageField(required=False)
+    file = forms.FileField(required=False)
 
     class Meta:
         model = Comment
-        fields = ('comment',)
+        fields = ('comment','file','image',)
+
+# class CommentImageForm(forms.ModelForm):
+#     """
+#     Comment Image Form
+#     """
+    
+#     image = forms.ImageField(required=False)
+#     class Meta:
+#         model = Comment
+#         fields = ('image',)
+
+
+# class CommentFileForm(forms.ModelForm):
+#     """
+#     Comment File Form
+#     """
+#     file = forms.FileField(required=False)
+    
+#     class Meta:
+#         model = Comment
+#         fields = ('file',)
 
 
 class EditCommentForms(forms.ModelForm):
@@ -95,6 +118,7 @@ class SearchForm(forms.ModelForm):
     Search Form for board
     """
     title =  forms.CharField(required=False)
+
     class Meta:
         model = Board
         fields = ('title',)

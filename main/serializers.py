@@ -58,7 +58,7 @@ class TicketDescSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Ticket
-		fields = ('description',)
+		fields = ('id','description',)
 
 
 class CommentEditSerializer(serializers.ModelSerializer):
@@ -67,7 +67,7 @@ class CommentEditSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Comment
-		fields = ('comment',)
+		fields = ('id','comment',)
 
 
 class BoardSerializer(serializers.ModelSerializer):

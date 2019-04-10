@@ -264,13 +264,13 @@ function modalClick(event){
             {% csrf_token %}
             {% render_field ticket_desc_form.description class+='form-control' rows='5' placeholder="This ticket has no description, write one" %}
             <button class="btn btn-primary" type="submit">Submit  </button>
-          </form>`;
+          </form>`; 
       }
 
       else{
-        description = data.description+`<hr><button class="btn btn-primary">Edit </button>`;
+        description = data.description+`<hr><button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit </button>`;
       }
-      
+
       for(var i = 0; i < data.comment.length; i++){
         comments+=`<div class="editComment" id="editComment`+data.comment[i].id+`" value=`+data.comment[i].id +`>
           <h1 class="login-forms" style="font-size:16px; ">
@@ -280,7 +280,10 @@ function modalClick(event){
             `+data.comment[i].comment+`
             </div>
             <button value="`+data.comment[i].id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
-            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+            <form method="post" action="/main/board/view/card/comment/delete/`+data.comment[i].id+`/" class="delete-comment-btn" style="display:inline;">
+              {% csrf_token %}
+              <button value="`+data.comment[i].id+`" class="btn btn-danger deleteCommentBtn" style="display:inline-block" type="submit">Delete</button>
+            </form>
           </div>
             <hr>`;
       }
@@ -307,12 +310,16 @@ function modalClick(event){
             Add a comment 
             <br><br>
             <h1 class="login-forms">
-            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" class="comment">
+            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" class="comment" enctype="multipart/form-data">
               {% csrf_token %}
-              {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" %}
-              <button class="btn btn-primary" type="submit">Save</button>
+                {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" %}
+                  <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
+                {% render_field comment_form.file class+="btn btn-primary" style="width:205px;"%} 
+                  <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
+                {% render_field comment_form.image class+="btn btn-success" style="width:205px;"%}
+                <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
             </form>
-            </h1>
+          </h1>
           </div>
         </div><br><br>
         <div class="panel panel-default">
@@ -328,8 +335,27 @@ function modalClick(event){
       $('.comment').submit(addComment);
       $('.description').submit(writeDescription);
       $('.editCommentBtn').on('click', editComment_form);
+      $('.edit-description-btn').on('click',editDescForm);
+      $('.delete-comment-btn').submit(deleteComment);
     }
   });
+}
+
+function editDescForm(event){
+  event.preventDefault();
+  ticket_id = $(this).attr('value');
+  console.log(ticket_id);
+  $('#createDescription').empty();
+  $('#createDescription').append(`
+    <br>
+      <form method="post" action="/main/board/view/card/description/`+ticket_id+`/" class="description">
+        {% csrf_token %}
+        {% render_field ticket_desc_form.description class+='form-control' rows='5' placeholder="This ticket has no description, write one" %}
+        <button class="btn btn-primary" type="submit">Submit </button>
+        <button class="btn btn-danger" type="button" value="`+ticket_id+`">Cancel</button>
+      </form>
+  `);
+  $('.description').submit(writeDescription);
 }
 
 function closeModalTicket(event){
@@ -345,23 +371,29 @@ function addComment(event){
     data: $(this).serialize(),
     success: function(data){
       $('#comment_section').append(`
+        <div class="editComment" id="editComment`+data.id+`" value=`+data.id +`>
         <h1 class="login-forms" style="font-size:16px; ">
            `+data.first_name+`&nbsp`+data.last_name+`
           </h1>
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment+`
             </div>
-            <button class="btn btn-primary" style="display:inline-block">Edit</button>
-            <button class="btn btn-danger" style="display:inline-block">Delete</button>
+            <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
+            <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-danger" style="display:inline-block" type="submit">Delete</button>
+            </form>
             <hr>
+        </div>
       `);
-
+      $('.editCommentBtn').on('click', editComment_form);
+      $('.delete-comment-btn').submit(deleteComment);
     }
   });
   event.stopImmediatePropagation();
 }
 
-function writeDescription(event){
+function deleteComment(event){
   event.preventDefault();
   var url = $(this).attr('action');
   $.ajax({
@@ -369,11 +401,26 @@ function writeDescription(event){
     method: "POST",
     data: $(this).serialize(),
     success: function(data){
+      $('#editComment'+data.id).remove();
+    }
+  })
+}
+
+function writeDescription(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log('write description');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
       $('#createDescription').empty();
       $('#createDescription').append(`
-        `+data.description+`<hr><button class="btn btn-primary">Edit</button>
+        `+data.description+`<hr><button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit</button>
       `);
       $('.editCommentBtn').on('click', editComment_form);
+      $('.edit-description-btn').on('click',editDescForm);  
     }
   })
 }
@@ -381,19 +428,47 @@ function writeDescription(event){
 function editComment_form(event){
   event.preventDefault();
   var comment_id= $(this).attr('value');
-  console.log(comment_id);
   $('#editComment'+comment_id).empty();
   $('#editComment'+comment_id).append(`
-    <form method="post" action="/main/board/view/card/comment/edit/`+comment_id+`/" class="form-edit-comment" >
+    <form method="post" action="/main/board/view/card/comment/edit/`+comment_id+`/" class="form-edit-comment" style="display:inline;">
     {% csrf_token %}
       {% render_field comment_form.comment rows="3" class+="form-control" placeholder="Edit Comment" %}
       <button class="btn btn-primary" type="submit">Submit</button>
     </form> <span></span>
-    <form method="get" action="/main/board/view/card/comment/get/`+comment_id+`/" class="form-edit-close" >
+    <form method="get" action="/main/board/view/card/comment/get/`+comment_id+`/" class="form-edit-close" style="display:inline;">
       <button class="btn btn-danger" type="submit">Cancel</button>
     </form>
   `);
+
    $('.form-edit-close').submit(closeEditComment_form);
+   $('.form-edit-comment').submit(editComment);
+   $('.delete-comment-btn').submit(deleteComment);
+}
+
+function editComment(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#editComment'+data.id).empty();
+      $('#editComment'+data.id).append(`
+        <h1 class="login-forms" style="font-size:16px; ">
+        `+data.first_name+`
+        </h1>
+          <div class="alert alert-primary" role="alert" style="text-align: left;">
+          `+data.comment+`
+          </div>
+          <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
+          <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
+            {% csrf_token %}
+            <button value="`+data.id+`" class="btn btn-danger deleteCommentBtn" style="display:inline-block" type="submit">Delete</button>
+          </form>
+      `);
+    }
+  });
 }
 
 function closeEditComment_form(event){
@@ -413,7 +488,7 @@ function closeEditComment_form(event){
             `+data.comment+`
             </div>
             
-            <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
+            <button value="`+data.id+`" class="btn btn-primary form-inline editCommentBtn" style="display:inline-block">Edit</button>
             <button class="btn btn-danger" style="display:inline-block">Delete</button>
           </div>
             <hr>

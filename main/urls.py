@@ -17,4 +17,5 @@ urlpatterns = [
     path('board/view/card/description/<int:ticket_id>/', views.UpdateDescTicketView.as_view(), name='ticket_description'),
     path('board/view/card/comment/edit/<int:comment_id>/', views.EditComment.as_view(), name="edit_comment"),
     path('board/view/card/comment/get/<int:comment_id>/',views.CommentView.as_view(),name='get_comment'),
+    path('board/view/card/comment/delete/<int:comment_id>/',views.DeleteComment.as_view(),name='delete_comment'),
 ]

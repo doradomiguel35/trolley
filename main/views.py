@@ -1,18 +1,20 @@
 from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment
-from .forms import BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, TicketDescForms, EditCommentForms, SearchForm
+from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
+    TicketDescForms, EditCommentForms, SearchForm,)
+
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
-    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer)
+    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer,)
 
 
 class TeamView(TemplateView):
     """
     Create boards here
     """
-
+    
     def get(self, *args, **kwargs):
         team = Team.objects.get(id=kwargs.get('id'))
         
@@ -41,6 +43,7 @@ class MainView(TemplateView):
         team_form = TeamForms()
         board_form = BoardForms()
         search_form = SearchForm()
+        comment_form = CommentForms()
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
         return render(self.request, 'main/home.html',
@@ -48,7 +51,8 @@ class MainView(TemplateView):
              'board_form': board_form,
              'teams': teams,
              'boards': boards,
-             'search_form': search_form})
+             'search_form': search_form,
+             'comment_form': comment_form})
 
     def post(self, request, *args, **kwargs):
         team_form = TeamForms(request.POST)
@@ -65,6 +69,8 @@ class BoardView(TemplateView):
     comment_form = CommentForms()
     ticket_desc_form = TicketDescForms()
     search_form = SearchForm()
+    # image_form = CommentImageForm()
+    # file_form = CommentFileForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -86,6 +92,11 @@ class BoardView(TemplateView):
              'comment_form': self.comment_form,
              'ticket_desc_form': self.ticket_desc_form,
              'search_form': self.search_form})
+        # ,
+        #          'image_form': self.image_form,
+        #          'file_form': self.file_form}
+
+            
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -115,6 +126,10 @@ class BoardView(TemplateView):
                  'comment_form': self.comment_form,
                  'ticket_desc_form': self.ticket_desc_form,
                  'search_form': self.search_form})
+            # ,
+            #      'image_form': self.image_form,
+            #      'file_form': self.file_form}
+                
   
 
         teams = self.request.user.teams.all()
@@ -126,7 +141,7 @@ class BoardView(TemplateView):
              'boards': boards})
 
 
-class ListView(TemplateView):
+class ListView(View):
     """
     List View
     """
@@ -142,7 +157,7 @@ class ListView(TemplateView):
             return JsonResponse(serialize.data, safe=False)
 
 
-class TicketView(TemplateView):
+class TicketView(View):
     """
     Ticket view
     """
@@ -175,7 +190,7 @@ class TicketView(TemplateView):
             return JsonResponse(serialize.data, safe=False)
 
 
-class UpdateDescTicketView(TemplateView):
+class UpdateDescTicketView(View):
     """
     update description of the ticket ticket
     """
@@ -191,7 +206,7 @@ class UpdateDescTicketView(TemplateView):
             return JsonResponse(serialize, safe=False)
             
 
-class CommentView(TemplateView):
+class CommentView(View):
     """
     Comment view
     """
@@ -206,11 +221,13 @@ class CommentView(TemplateView):
 
 
     def post(self, *args, **kwargs):
-        comment_form = CommentForms(self.request.POST)
+        comment_form = CommentForms(self.request.POST,self.request.FILES)
+        import pdb; pdb.set_trace()
         if comment_form.is_valid():
             comment = Comment(user_id=self.request.user.id,
-                comment=comment_form.cleaned_data['comment'],
-                ticket_id=kwargs.get('ticket_id'))
+                comment=comment_form.data.get('comment'),
+                file=comment_form.cleaned_data['file'],
+                image=comment_form.cleaned_data['image'])
             comment.save()
             serialize = CommentSerializer(comment).data
             serialize['first_name'] = self.request.user.first_name
@@ -230,6 +247,8 @@ class EditComment(View):
             comment.comment = comment_form.cleaned_data['comment']
             comment.save()
             serialize = CommentEditSerializer(comment).data
+            serialize['first_name'] = comment.user.first_name
+            serialize['last_name'] = comment.user.last_name
             return JsonResponse(serialize, safe=False)
 
 
@@ -245,4 +264,16 @@ class SearchBoardView(View):
             serializer = {'boards': list(board)}
             
             return JsonResponse(serializer, safe=False)
-            
+           
+
+class DeleteComment(View):
+    """
+    Delete a ticket
+    """ 
+
+    def post(self, *args, **kwargs):
+        comment = Comment.objects.get(id=kwargs.get('comment_id'))
+        comment.delete()
+
+        serializer = CommentEditSerializer(comment).data
+        return JsonResponse(serializer, safe=False)

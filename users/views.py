@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .forms import SignUpValidation, LoginValidation
-from main.forms import BoardForms, TeamForms, SearchForm
+from main.forms import BoardForms, TeamForms, SearchForm, CommentForms
 from django.contrib.auth import login, authenticate
 from main.models import Board, Team
 
@@ -10,9 +10,11 @@ class HomeView(TemplateView):
     home view
     """
     template_name = "base.html"
+    comment_form = CommentForms()
 
     def get(self, *args, **kwargs):
-        return render(self.request, self.template_name)
+        return render(self.request, self.template_name,
+            {'comment_form': self.comment_form})
 
 
 class LoginView(TemplateView):
@@ -24,12 +26,14 @@ class LoginView(TemplateView):
     board_form = BoardForms()
     team_form = TeamForms()
     search_form = SearchForm()
+    comment_form = CommentForms()
 
     def get(self, *args, **kwargs):
         # import pdb; pdb.set_trace()
         return render(
             self.request, self.template_name,
-            {'forms': self.login_form})
+            {'forms': self.login_form,
+             'comment_form': self.comment_form})
 
     def post(self, *args, **kwargs):
         forms = LoginValidation(self.request.POST)
@@ -48,6 +52,7 @@ class LoginView(TemplateView):
                 {'board_form': self.board_form,
                  'team_form': self.team_form,
                  'search_form': self.search_form,
+                 'comment_form': self.comment_form,
                  'teams': teams,
                  'boards': boards})
 
