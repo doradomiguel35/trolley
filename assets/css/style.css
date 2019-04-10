@@ -401,8 +401,36 @@ footer {
 
 }
 
-
 .ticket-modal{
 	margin-bottom: 5px;
+}
+
+.searchResults{
+	width: 285px;
+	height: 30px;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	background-color: #fafafa ;
+	padding: 5px;
+}
+
+.searches{
+	width: 300px;
+	min-height: 50px;
+	margin-left: 1470px;
+	border: .5px solid gray;
+	border-radius: 5px;
+	padding: 5px;
+	background-color: #e0e0e0;
+	
+}
+
+.searchFont{
+	font-family: 'abel';
+	font-size: 15px;
+}
+
+.searchPlacement{
+	display: inline-block;
 }
 

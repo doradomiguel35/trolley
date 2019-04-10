@@ -238,9 +238,11 @@ class SearchBoardView(View):
     Search board view
     """
 
-    def post(self, *args, **kwargs):
-        search_form = SearchForm(self.request.POST)
+    def get(self, *args, **kwargs):
+        search_form = SearchForm(self.request.GET)
         if search_form.is_valid():
-            board = Board.objects.filter(title=search_form.cleaned_data['title'])
-
-            import pdb;pdb.set_trace()
+            board = Board.objects.filter(title=search_form.cleaned_data['title'],visibility='Public').values('id','title')
+            serializer = {'boards': list(board)}
+            
+            return JsonResponse(serializer, safe=False)
+            

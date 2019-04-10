@@ -94,7 +94,7 @@ class SearchForm(forms.ModelForm):
     """
     Search Form for board
     """
-
+    title =  forms.CharField(required=False)
     class Meta:
         model = Board
         fields = ('title',)

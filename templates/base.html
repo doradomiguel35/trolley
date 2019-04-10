@@ -18,12 +18,12 @@
     {% block main %}
     <nav class="navbar navbar-expand-lg navbar-light bg-info">
         <a class="navbar-brand logo-font" href="{% url 'user:home' %}">TROLLEY</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>
         <div class="nav-container-right">
         <a href="{% url 'user:login' %}" class="nav-login">Log in</a>   
-        <a class="btn btn-light" href="{% url 'user:signup'%}" role="button">Sign Up</a>
+        <a class="btn btn-light" href="{% url 'user:signup' %}" role="button">Sign Up</a>
         <div>
         
 
@@ -187,12 +187,15 @@ function add_card(event){
     data: $(this).serialize(),
     success: function(data){
       $('#ul-'+list_id).append(`
-        <li draggable="true" ondragstart="drag(event)" id=`+data.id+`>`+data.name+`</li>
+        <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+        <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">`+data.name+`</li>
+        </form>
       `);
       $('#add-card-form-'+list_id).replaceWith(`
           <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
 
       $('.add-card-btn').click(add_card_form);
+      $('.ticket-modal').on('click',modalClick);
     }
   }).done();
   event.stopImmediatePropagation();
@@ -269,7 +272,6 @@ function modalClick(event){
       }
       
       for(var i = 0; i < data.comment.length; i++){
-
         comments+=`<div class="editComment" id="editComment`+data.comment[i].id+`" value=`+data.comment[i].id +`>
           <h1 class="login-forms" style="font-size:16px; ">
           `+data.comment[i].user__first_name+`
@@ -277,7 +279,6 @@ function modalClick(event){
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment[i].comment+`
             </div>
-
             <button value="`+data.comment[i].id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
             <button class="btn btn-danger" style="display:inline-block">Delete</button>
           </div>
@@ -372,6 +373,7 @@ function writeDescription(event){
       $('#createDescription').append(`
         `+data.description+`<hr><button class="btn btn-primary">Edit</button>
       `);
+      $('.editCommentBtn').on('click', editComment_form);
     }
   })
 }
@@ -422,8 +424,51 @@ function closeEditComment_form(event){
 }
 
 
+function searchBoard(event){
+  event.preventDefault();
+  url = $(this).attr('action');
+  console.log('change');
+
+  $('#searchBoard').append(`
+    <div id="searchBoardResults" class="searches">
+    <h1 class="searchFont">Search Results</h1>
+    <hr>
+    </div>
+  `);
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+
+      if($('#searchForm').val() === ''){
+          $('#searchBoard').empty();
+      }
+
+      else if(data.boards[0] === undefined){
+        $('#searchBoardResults').append(`
+        <div class="searchResults">
+          <h1 class="searchFont">No results found</h1>
+        </div>
+      `);
+      }
+
+      else{
+        $('#searchBoardResults').append(`
+          <div class="searchResults">
+          <a href="/main/board/`+data.boards[0].id+`">
+            <h1 class="searchFont">`+data.boards[0].title+`</h1>
+          </a>
+          </div>
+        `);
+      }
+    }
+  });
+}
 
 //events
+$('.searchBoardForm').on('submit',searchBoard);
 $('.ticket-modal').on('click',modalClick);
 $('.close').on('click', closeModalTicket);
 $('.add-card-btn').click(add_card_form);

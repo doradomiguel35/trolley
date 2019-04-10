@@ -76,5 +76,5 @@ class BoardSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Board
-		fields = ('title',)
+		fields = ('id','title',)
 
