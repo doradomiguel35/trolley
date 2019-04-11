@@ -87,5 +87,5 @@ class InviteBoardSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = InviteToBoard
-		field = ('id','confirmed','user','board')
+		fields = ('id','confirmed','user','board')
 		

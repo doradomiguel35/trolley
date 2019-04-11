@@ -7,8 +7,8 @@
 	<div class="board-nav">
 		<h1 class="board-nav-title" style="margin-right: 10px;">{{ board.title }} &nbsp|</h1>
 		<h1 class="board-nav-title">|&nbsp {{ board.visibility}} &nbsp</h1>
-		<form action="{% url 'main:members' board.id %}" method="get" style="display: inline;" class="members-modal-view">
-			<button data-target="#memberModal" data-toggle="modal" type="submit" class="btn btn-success" >Members</button>
+		<form method="get" action="{% url 'main:members' board.id %}" class="members-modal-view" style="display: inline;">
+			<button value="{{ board.id }}" type="submit" class="btn btn-success" data-target="#memberModal" data-toggle="modal">Members</button>
 		</form>
 		{% if board.owner.id == user.id %}
 		<form method="post" action="{% url 'main:close_board' board.id %}" style="display: inline;">
@@ -22,11 +22,12 @@
 	
 	<section class="lists-container">
 
-	{% for list in lists %}
+		{% for list in lists %}
 	<div id="list-{{ list.id }}" class="list">
-
+		
 		<h3 class="list-title">
-			{{ list.name }}<button id="btn-edit-name-list" class="edit-list-btn btn" style="display: inline; width: 40px;height: 30px;margin-left: 180px; text-align: center;" >.</button>
+			{{ list.name }}
+			<button id="btn-edit-name-list" class="edit-list-btn btn" style="display: inline;text-align: center;" ></button>	
 		</h3>
 		
 		<ul value="{{ list.id }}" id="ul-{{ list.id }}" class="list-items">

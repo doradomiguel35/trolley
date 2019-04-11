@@ -104,7 +104,14 @@
           <div class="modal-body" id="members-modal-body">
               <!-- member will be display in the modal  -->
           </div>
-          <div class="modal-footer">
+          <div class="modal-footer invite-form">
+            
+            <button value="{{ board.id }}"type="button" class="btn btn-success" id="invite-user-btn" style="float:left;">
+              <h1 class="login-forms" style="font-size: 15px;">
+                <i class="material-icons" style="font-size:30px;">person</i>Invite
+              </h1>
+            </button>
+
           </div>
         </div>
       </div>
@@ -120,7 +127,6 @@
           <div class="modal-body" id="ticket-modal-body">
             <div id="insert-modal-ticket" class="container">
               
-              <!-- modal content for viewing tickets -->
             </div>
           </div>
         </div>
@@ -136,6 +142,33 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
 
+function invite_form(event){
+  var board_id = $(this).attr('value');
+  $('#invite-user-btn').before(`
+    <form method='post' action="/main/board/invite/`+board_id+`/" class="invite-form-btn" style="margin-right:250px;">
+      {% csrf_token %}
+      {% render_field invite_form.email class="form-control" placeholder="Email address"   style="margin-bottom:10px;" %}
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button value="`+board_id+`" type="button" class="btn btn-danger cancel-invite-form">Cancel</button>
+    </form>
+  `);
+  $(this).remove();
+  $('.cancel-invite-form').on('click',close_invite_form);
+}
+
+function close_invite_form(event){
+  var board_id = $(this).attr('value');
+  $('.invite-form').empty();
+  $('.invite-form').append(`
+    <button value="`+board_id+`" type="button" class="btn btn-success" id="invite-user-btn" style="float:left;">
+      <h1 class="login-forms" style="font-size: 15px;">
+        <i class="material-icons" style="font-size:30px;">person</i>Invite
+      </h1>
+    </button>
+  `);
+  $('#invite-user-btn').on('click',invite_form);
+}
+
 function displayMembers(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -144,10 +177,13 @@ function displayMembers(event){
     url:url,
     data: $(this).serialize(),
     success: function(data){
+      console.log(data);
+      $('#members-modal-body').empty();
       for(var i = 0; i < data.members.length; i++){
         $('#members-modal-body').append(`
-          <h1 class="login-forms" style="15px;">
-            `+data.members[i]first_name+` &nbsp `+data.members[i]last_name+`
+          <h1 class="login-forms" style="font-size: 15px;">
+            <i class="material-icons" style="font-size:30px;">person</i>
+            `+data.members[i].first_name+` &nbsp `+data.members[i].last_name+`
           </h1>
           <hr>
         `);
@@ -168,7 +204,7 @@ function add_list(event){
       $('#inserted-list').before(`
         <div id="list-`+data.id+`" class="list">
           <h3 class="list-title">`+data.name+`</h3>
-          <ul id="ul-`+data.id+`" class="list-items"> 
+          <ul value="`+data.id+`" id="ul-`+data.id+`" class="list-items"> 
           </ul>
           <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
         </div>
@@ -179,6 +215,7 @@ function add_list(event){
       $('#btn-add-list').on('click',add_list_form);  
       $('.add-card-btn').click(add_card_form);
     }
+
   });
   event.stopImmediatePropagation();
 }
@@ -228,7 +265,9 @@ function add_card(event){
     success: function(data){
       $('#ul-'+list_id).append(`
         <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" value="`+data.id+`" data-toggle="modal" data-target="#ticketModal">
+        {% csrf_token %}
         <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">`+data.name+`</li>
+        <button type="submit" hidden="hidden">trigger</button>
         </form>
       `);
 
@@ -237,6 +276,33 @@ function add_card(event){
 
       $('.add-card-btn').click(add_card_form);
       $('.ticket-modal').on('click',modalClick);
+      $('.list-items').sortable({
+        connectWith: '.list-items',
+        start: function(event,ui){
+          $(this).css('overflow-y','');
+        },
+        stop: function(event,ui){
+          console.log($(this).attr('value'));
+        }
+      });
+
+      $('.ticket-modal').draggable({
+        stop: function(event, ui){
+          var orig_action = $(this).attr('action');
+          var orig_method = $(this).attr('method');
+          var list_id = $(this).parents().attr('value');
+          var ticket_id = $(this).attr('value');
+          $(this).attr('method','post');
+          $(this).attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
+          $(this).trigger('submit');
+          $(this).attr('action',orig_action);
+          $(this).attr('method',orig_method);
+        }, 
+        connectToSortable: '.list-items',
+        revert: true
+      });
+      $('.ticket-modal').on('submit',changeList);
+      $('.list-items').disableSelection();
     }
   }).done();
   event.stopImmediatePropagation();
@@ -322,7 +388,7 @@ function modalClick(event){
             `+data.comment[i].comment+`
             <hr>
             <h1 class="login-forms" style="font-size:16px;">Files</h1>
-            <a href="/media/`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`"></a>
+            <a href="/media/`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`" class="comment-image"></a>
             <hr>
             <a href="/media/`+data.comment[i].file+`">`+data.comment[i].file+`</a>
             </div>  
@@ -434,9 +500,9 @@ function addComment(event){
             `+data.comment+`
             <hr>
             <h1 class="login-forms" style="font-size:16px;">Files</h1>
-            <a href="/media/`+data.image+`"><img src="/media/`+data.image+`"></a>
+            <a href="`+data.image+`"><img src="`+data.image+`" class="comment-image"></a>
             <hr>
-            <a href="/media/`+data.file+`">`+data.file+`</a>
+            <a href="`+data.file+`">`+data.file+`</a>
             </div>
 
             <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
@@ -629,6 +695,7 @@ function changeList(event){
   });
 }
 
+
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
@@ -663,6 +730,7 @@ $('.ticket-modal').draggable({
   revert: true
 });
 
+$('#invite-user-btn').on('click',invite_form);
 $('.ticket-modal').on('submit',changeList);
 $('.lists-container').disableSelection();  
 $('.list-items').disableSelection();
@@ -671,7 +739,7 @@ $('.ticket-modal').on('click',modalClick);
 $('.close').on('click', closeModalTicket);
 $('.add-card-btn').click(add_card_form);
 $('#btn-add-list').on('click',add_list_form); 
-// $('.members-modal-view').on('submit',displayMembers);
+$('.members-modal-view').on('submit',displayMembers);
 </script>
 </body>
 </html>

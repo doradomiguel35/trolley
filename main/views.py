@@ -1,16 +1,15 @@
 from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment, InviteToBoard
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
-    TicketDescForms, EditCommentForms, SearchForm,)
+    TicketDescForms, EditCommentForms, SearchForm, InviteUserBoardForm)
 from django.http import HttpResponseRedirect
+from users.models import User
 from django.urls import reverse
 
-from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
-from django_short_url.views import get_surl
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
-    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer,)
+    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer)
 
 
 class TeamView(TemplateView):
@@ -72,6 +71,7 @@ class BoardView(TemplateView):
     comment_form = CommentForms()
     ticket_desc_form = TicketDescForms()
     search_form = SearchForm()
+    invite_form = InviteUserBoardForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -92,7 +92,8 @@ class BoardView(TemplateView):
              'ticket_form': self.ticket_form,
              'comment_form': self.comment_form,
              'ticket_desc_form': self.ticket_desc_form,
-             'search_form': self.search_form})
+             'search_form': self.search_form,
+             'invite_form': self.invite_form})
 
 
     def post(self, *args, **kwargs):
@@ -123,7 +124,8 @@ class BoardView(TemplateView):
                  'ticket_form': self.ticket_form,
                  'comment_form': self.comment_form,
                  'ticket_desc_form': self.ticket_desc_form,
-                 'search_form': self.search_form})
+                 'search_form': self.search_form,
+                 'invite_form': self.invite_form})
   
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
@@ -304,12 +306,23 @@ class InviteToBoardView(View):
     """
 
     def post(self, *args, **kwargs):
-        user = AUTH_USER_MODEL.objects.get(email=kwargs.get('email_address',))
-        invite = InviteToBoard(user_id=user.id,
-            board_id=kwargs.get('board_id'))
-        invite.save()    
+        invite_email = InviteUserBoardForm(self.request.POST)
 
-        return JsonResponse(serializer, safe=False)
+        if invite_email.is_valid():
+            user = User.objects.get(email=invite_email.cleaned_data['email'])
+            
+            try:
+                invite = InviteToBoard.objects.get(user_id=user.id,
+                    board_id=kwargs.get('board_id'))   
+            except:
+                invite = Invite(user_id=user.id,
+                    board_id=kwargs.get('board.id'))
+                invite.save()
+            
+            import pdb; pdb.set_trace()
+            serializer = InviteBoardSerializer(invite).data
+            
+            return JsonResponse(serializer, safe=False)
 
 
 class ConfirmInviteBoard(View):

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team, List, Ticket, Comment
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard
 from users.models import User
 
 
@@ -101,4 +101,12 @@ class SearchForm(forms.ModelForm):
     class Meta:
         model = Board
         fields = ('title',)
+
+
+class InviteUserBoardForm(forms.Form):
+    """
+    Invite user to board
+    """
+    email = forms.EmailField()
+    
 
