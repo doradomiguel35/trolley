@@ -80,27 +80,6 @@ class CommentForms(forms.ModelForm):
         model = Comment
         fields = ('comment','file','image',)
 
-# class CommentImageForm(forms.ModelForm):
-#     """
-#     Comment Image Form
-#     """
-    
-#     image = forms.ImageField(required=False)
-#     class Meta:
-#         model = Comment
-#         fields = ('image',)
-
-
-# class CommentFileForm(forms.ModelForm):
-#     """
-#     Comment File Form
-#     """
-#     file = forms.FileField(required=False)
-    
-#     class Meta:
-#         model = Comment
-#         fields = ('file',)
-
 
 class EditCommentForms(forms.ModelForm):
     """

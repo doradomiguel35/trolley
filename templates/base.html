@@ -91,6 +91,25 @@
       </div>
       </form>
     </div>
+    
+    <div id="memberModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Members</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="members-modal-body">
+              <!-- member will be display in the modal  -->
+          </div>
+          <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div>
+  
 
     <div id="ticketModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
@@ -116,6 +135,26 @@
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+
+function displayMembers(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      for(var i = 0; i < data.members.length; i++){
+        $('#members-modal-body').append(`
+          <h1 class="login-forms" style="15px;">
+            `+data.members[i]first_name+` &nbsp `+data.members[i]last_name+`
+          </h1>
+          <hr>
+        `);
+      }
+    }
+  })
+}
 
 function add_list(event){
   event.preventDefault()
@@ -192,6 +231,7 @@ function add_card(event){
         <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">`+data.name+`</li>
         </form>
       `);
+
       $('#add-card-form-'+list_id).replaceWith(`
           <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
 
@@ -264,7 +304,7 @@ function modalClick(event){
           <br>
           <form method="post" action="/main/board/view/card/description/`+data.id+`/" class="description">
             {% csrf_token %}
-            {% render_field ticket_desc_form.description class+='form-control' rows='5' placeholder="This ticket has no description, write one" %}
+            {% render_field ticket_desc_form.description class+='form-control' rows='5' style="margin-bottom: 10px;" placeholder="This ticket has no description, write one" %}
             <button class="btn btn-primary" type="submit">Submit  </button>
           </form>`; 
       }
@@ -320,7 +360,7 @@ function modalClick(event){
             <h1 class="login-forms">
             <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
               {% csrf_token %}
-                {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" %}
+                {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" style="margin-bottom:10px" %}
                   <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
                 {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
                     <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
@@ -531,7 +571,6 @@ function closeEditComment_form(event){
   });
 }
 
-
 function searchBoard(event){
   event.preventDefault();
   url = $(this).attr('action');
@@ -632,7 +671,7 @@ $('.ticket-modal').on('click',modalClick);
 $('.close').on('click', closeModalTicket);
 $('.add-card-btn').click(add_card_form);
 $('#btn-add-list').on('click',add_list_form); 
-
+// $('.members-modal-view').on('submit',displayMembers);
 </script>
 </body>
 </html>

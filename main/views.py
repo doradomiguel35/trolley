@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Board, Team, List, Ticket, Comment
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
     TicketDescForms, EditCommentForms, SearchForm,)
 from django.http import HttpResponseRedirect
@@ -72,8 +72,6 @@ class BoardView(TemplateView):
     comment_form = CommentForms()
     ticket_desc_form = TicketDescForms()
     search_form = SearchForm()
-    # image_form = CommentImageForm()
-    # file_form = CommentFileForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -95,9 +93,7 @@ class BoardView(TemplateView):
              'comment_form': self.comment_form,
              'ticket_desc_form': self.ticket_desc_form,
              'search_form': self.search_form})
-        # ,
-        #          'image_form': self.image_form,
-        #          'file_form': self.file_form}
+
 
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
@@ -108,6 +104,9 @@ class BoardView(TemplateView):
                     team=self.board_form.cleaned_data['team'],
                     owner_id=self.request.user.id)
             board.save()
+            board.member.add(self.request.user)
+            board.save()
+            import pdb; pdb.set_trace()
             team = self.request.user.teams.all()
             lists = List.objects.filter(board_id=board.id)
             tickets = Ticket.objects.filter(lists_id__in=lists)
@@ -125,12 +124,7 @@ class BoardView(TemplateView):
                  'comment_form': self.comment_form,
                  'ticket_desc_form': self.ticket_desc_form,
                  'search_form': self.search_form})
-            # ,
-            #      'image_form': self.image_form,
-            #      'file_form': self.file_form}
-                
   
-
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
         return render(self.request, 'main/home.html',
@@ -174,8 +168,6 @@ class TicketView(View):
             serialize = TicketSerializer(ticket).data
             return JsonResponse(serialize, safe=False)
 
-           
-
     def post(self, *args, **kwargs):
         ticket_form = TicketCreationForms(self.request.POST)
         if ticket_form.is_valid():
@@ -212,7 +204,6 @@ class CommentView(View):
     def get(self, *args, **kwargs):
         comment = Comment.objects.get(id=kwargs.get('comment_id'))
         serialize = CommentSerializer(comment).data
-        import pdb; pdb.set_trace()
         serialize['first_name'] = comment.user.first_name
         serialize['last_name'] = comment.user.last_name
 
@@ -289,7 +280,6 @@ class CloseBoardView(View):
         board = Board.objects.get(id=kwargs.get('board_id'))
         board_id = board.id
         board.delete()
-        import pdb; pdb.set_trace()
         return HttpResponseRedirect(reverse('main:home', kwargs={'id':self.request.user.id}))
 
 
@@ -306,3 +296,50 @@ class UpdateCardListView(View):
 
         serializer = TicketSerializer(ticket).data
         return JsonResponse(serializer, safe=False)
+
+
+class InviteToBoardView(View):
+    """
+    Invite a user to a board
+    """
+
+    def post(self, *args, **kwargs):
+        user = AUTH_USER_MODEL.objects.get(email=kwargs.get('email_address',))
+        invite = InviteToBoard(user_id=user.id,
+            board_id=kwargs.get('board_id'))
+        invite.save()    
+
+        return JsonResponse(serializer, safe=False)
+
+
+class ConfirmInviteBoard(View):
+    """
+    Confirm invite to a board
+    """
+
+    def post(self, *args, **kwargs):
+        invite = InviteToBoard.objects.get(id=kwargs.get('invite_id'))
+        invite.confirmed = True
+        invite.save()
+
+        board = Board.objects.get(id=invite.board.id)
+        board.member.add(invite.user)
+        board.save()
+
+        serializer = BoardSerializer(board).data
+        return JsonResponse(serializer, safe=False)
+
+
+class MemberBoardView(View):
+    """
+    Member board view
+    """
+
+    def get(self, *args, **kwargs):
+        board_members = Board.objects.get(id=kwargs.get('board_id')).member.all().values('id','email','first_name','last_name')
+
+        serializer = {'members': list(board_members)}
+        return JsonResponse(serializer, safe=False)
+
+
+

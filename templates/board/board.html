@@ -7,7 +7,9 @@
 	<div class="board-nav">
 		<h1 class="board-nav-title" style="margin-right: 10px;">{{ board.title }} &nbsp|</h1>
 		<h1 class="board-nav-title">|&nbsp {{ board.visibility}} &nbsp</h1>
-		<button type="button" class="btn btn-success" >Members</button>
+		<form action="{% url 'main:members' board.id %}" method="get" style="display: inline;" class="members-modal-view">
+			<button data-target="#memberModal" data-toggle="modal" type="submit" class="btn btn-success" >Members</button>
+		</form>
 		{% if board.owner.id == user.id %}
 		<form method="post" action="{% url 'main:close_board' board.id %}" style="display: inline;">
 			{% csrf_token %}

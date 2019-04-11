@@ -23,8 +23,9 @@ class Board(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=300, default="")
     visibility = models.CharField(max_length=50, choices=VISIBILITY_CHOICES, default=VIS_PU)
-    owner = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="admin")
     team = models.ForeignKey('main.Team', on_delete=models.SET_NULL, null=True, to_field='name')
+    member = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name="members")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -68,6 +69,7 @@ class Comment(models.Model):
     file = models.FileField(upload_to=ticket_file_upload_path, null=True)
     image = models.ImageField(upload_to=ticket_image_file_upload_path, null=True)
     ticket = models.ForeignKey('main.Ticket', on_delete=models.CASCADE)
+    
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -81,3 +83,19 @@ class List(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
+
+class InviteToBoard(models.Model):
+    """
+    Invite to board
+    """
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    confirmed = models.BooleanField(default=False)
+    board = models.ForeignKey('main.Board', on_delete=models.SET_NULL, null=True)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
+
+
