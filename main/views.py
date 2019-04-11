@@ -99,8 +99,6 @@ class BoardView(TemplateView):
         #          'image_form': self.image_form,
         #          'file_form': self.file_form}
 
-            
-
     def post(self, *args, **kwargs):
         self.board_form = BoardForms(self.request.POST)
         if self.board_form.is_valid():
@@ -113,8 +111,6 @@ class BoardView(TemplateView):
             team = self.request.user.teams.all()
             lists = List.objects.filter(board_id=board.id)
             tickets = Ticket.objects.filter(lists_id__in=lists)
-
-
 
             return render(self.request, 'board/board.html',
                 {'user': self.request.user,

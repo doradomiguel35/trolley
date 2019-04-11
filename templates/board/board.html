@@ -31,9 +31,11 @@
 			{% for ticket in tickets %}
 				{% if ticket.lists_id == list.id %}
 				<form method="get" action="{% url 'main:ticket_view' ticket.id %}" value="{{ticket.id}}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+					{% csrf_token %}
 					<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}" class="modal-li-draggable"> 
 						{{ ticket.name }}
 					</li>
+					<button type="submit" hidden="hidden">trigger</button>
 				</form>
 				{% endif %}
 			{% endfor %}

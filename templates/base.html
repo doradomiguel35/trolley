@@ -188,7 +188,7 @@ function add_card(event){
     data: $(this).serialize(),
     success: function(data){
       $('#ul-'+list_id).append(`
-        <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+        <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" value="`+data.id+`" data-toggle="modal" data-target="#ticketModal">
         <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">`+data.name+`</li>
         </form>
       `);
@@ -576,10 +576,26 @@ function searchBoard(event){
   event.stopImmediatePropagation();
 }
 
+function changeList(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log($(this).attr('method'));
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+    }
+  });
+}
+
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
-  revert: true,
+  start: function(event,ui){
+    $(this).css('overflow-y','');
+  },
   stop: function(event,ui){
     console.log($(this).attr('value'));
   }
@@ -594,17 +610,21 @@ $('.lists-container').sortable({
 
 $('.ticket-modal').draggable({
   stop: function(event, ui){
+    var orig_action = $(this).attr('action');
+    var orig_method = $(this).attr('method');
     var list_id = $(this).parents().attr('value');
     var ticket_id = $(this).attr('value');
     $(this).attr('method','post');
-    // url for updating: ticket_id, list_id
-    $(this).attr('action','/main/board/card/change/'+list_id+'/'+ticket_id+'/');
-    console.log($(this).attr('method'));
+    $(this).attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
+    $(this).trigger('submit');
+    $(this).attr('action',orig_action);
+    $(this).attr('method',orig_method);
   }, 
   connectToSortable: '.list-items',
   revert: true
 });
 
+$('.ticket-modal').on('submit',changeList);
 $('.lists-container').disableSelection();  
 $('.list-items').disableSelection();
 $('.searchBoardForm').on('submit',searchBoard);
