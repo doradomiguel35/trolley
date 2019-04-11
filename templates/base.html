@@ -141,6 +141,7 @@ function add_list(event){
       $('.add-card-btn').click(add_card_form);
     }
   });
+  event.stopImmediatePropagation();
 }
 
 function close_add_list(event){
@@ -256,8 +257,9 @@ function modalClick(event){
     success: function(data){
       var comments='';
       var description='';
+      var file='';
+      console.log(data);
       if(data.description === ''){
-        console.log(true);
         description = `
           <br>
           <form method="post" action="/main/board/view/card/description/`+data.id+`/" class="description">
@@ -278,7 +280,13 @@ function modalClick(event){
           </h1>
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment[i].comment+`
-            </div>
+            <hr>
+            <h1 class="login-forms" style="font-size:16px;">Files</h1>
+            <a href="/media/`+data.comment[i].image+`">`+data.comment[i].image+`</a>
+            <hr>
+            <a href="/media/`+data.comment[i].file+`">`+data.comment[i].file+`</a>
+            </div>  
+            
             <button value="`+data.comment[i].id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
             <form method="post" action="/main/board/view/card/comment/delete/`+data.comment[i].id+`/" class="delete-comment-btn" style="display:inline;">
               {% csrf_token %}
@@ -287,7 +295,7 @@ function modalClick(event){
           </div>
             <hr>`;
       }
-         
+      $('#insert-modal-ticket').empty();
       $('#insert-modal-ticket').append(`
          <div class="panel panel-default">
             <div class="panel-body">
@@ -310,13 +318,13 @@ function modalClick(event){
             Add a comment 
             <br><br>
             <h1 class="login-forms">
-            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" class="comment" enctype="multipart/form-data">
+            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
               {% csrf_token %}
                 {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" %}
                   <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
-                {% render_field comment_form.file class+="btn btn-primary" style="width:205px;"%} 
-                  <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
-                {% render_field comment_form.image class+="btn btn-success" style="width:205px;"%}
+                {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
+                    <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
+                {{ comment_form.image|add_class:"btn btn-success"|attr:"style:width:205px;" }}
                 <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
             </form>
           </h1>
@@ -337,8 +345,10 @@ function modalClick(event){
       $('.editCommentBtn').on('click', editComment_form);
       $('.edit-description-btn').on('click',editDescForm);
       $('.delete-comment-btn').submit(deleteComment);
+      event.stopImmediatePropagation(); 
     }
   });
+   
 }
 
 function editDescForm(event){
@@ -365,10 +375,14 @@ function closeModalTicket(event){
 function addComment(event){
   event.preventDefault();
   var url=$(this).attr('action');
+  var data = new FormData(this);
   $.ajax({
     url:url,
     method: "POST",
-    data: $(this).serialize(),
+    data: data,
+    cache: false,
+    contentType: false,
+    processData: false,
     success: function(data){
       $('#comment_section').append(`
         <div class="editComment" id="editComment`+data.id+`" value=`+data.id +`>
@@ -469,6 +483,7 @@ function editComment(event){
       `);
     }
   });
+  event.stopImmediatePropagation();
 }
 
 function closeEditComment_form(event){
@@ -540,6 +555,7 @@ function searchBoard(event){
       }
     }
   });
+  event.stopImmediatePropagation();
 }
 
 //events

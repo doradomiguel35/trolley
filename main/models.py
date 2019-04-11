@@ -3,10 +3,10 @@ from users.models import User
 from trolley import settings
 
 def ticket_file_upload_path(instance, filename):
-    return f'tickets/{instance.id}/comments/{instance.user.id}/{filename}'
+    return f'tickets/{instance.user.id}/comments/{instance.ticket.id}/{filename}'
 
 def ticket_image_file_upload_path(instance, filename):
-    return f'ticket_images/{instance.id}/comments/{instance.user.id}/{filename}'
+    return f'ticket_images/{instance.user.id}/comments/{instance.ticket.id}/{filename}'
 
 class Board(models.Model):
     """

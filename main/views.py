@@ -165,8 +165,7 @@ class TicketView(View):
     def get(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
         comments = Comment.objects.filter(
-            ticket_id=kwargs.get('ticket_id')).values('id','user_id','user__first_name','user__last_name','comment','ticket_id')
-
+            ticket_id=kwargs.get('ticket_id')).values('id','user_id','user__first_name','user__last_name','comment','ticket_id','image','file')
         try:
             serialize = TicketSerializer(ticket).data
             serialize['comment']= list(comments)
@@ -221,13 +220,14 @@ class CommentView(View):
 
 
     def post(self, *args, **kwargs):
-        comment_form = CommentForms(self.request.POST,self.request.FILES)
-        import pdb; pdb.set_trace()
+        comment_form = CommentForms(data=self.request.POST,files=self.request.FILES)
         if comment_form.is_valid():
             comment = Comment(user_id=self.request.user.id,
                 comment=comment_form.data.get('comment'),
                 file=comment_form.cleaned_data['file'],
-                image=comment_form.cleaned_data['image'])
+                image=comment_form.cleaned_data['image'],
+                ticket_id=kwargs.get('ticket_id'))
+
             comment.save()
             serialize = CommentSerializer(comment).data
             serialize['first_name'] = self.request.user.first_name
