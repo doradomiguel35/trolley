@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
 {% block main %}
 <nav class="navbar navbar-expand-lg navbar-light bg-info">	
@@ -17,7 +18,7 @@
     </div>
 
 	 <div class="mx-auto order-0">
-		<a class="navbar-brand logo-font" href="{% url 'user:home' %}">TROLLEY</a>
+		<a class="navbar-brand logo-font" href="{% url 'user:login' %}">TROLLEY</a>
 	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 	    <span class="navbar-toggler-icon"></span>
 	    </button>
@@ -26,9 +27,10 @@
 	<div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
 		<ul class="navbar-nav ml-auto">
 			<li class="nav-item main-nav-margin">
-				<form>
+				<form method="get" action="{% url 'main:search_board' %}" class="searchBoardForm">
+					{% csrf_token %}
 				  <div class="input-group">
-				    <input type="text" class="form-control" placeholder="Search">
+				    {% render_field search_form.title class+="form-control" placeholder="Search for boards" type="search" id="searchForm"%}
 				    <div class="input-group-btn">
 				      <button class="btn primary btn-primary" type="submit">
 				        <i class="material-icons" style="font-size:14px">search</i>
@@ -36,6 +38,7 @@
 				    </div>
 				  </div>
 				</form>
+
 			</li>
 			<li class="nav-item main-nav-margin">
 				<button class="btn primary btn-primary" data-target="#addBoard" data-toggle="modal">
@@ -50,6 +53,8 @@
         </ul>
     </div>
 </nav>
+<div id="searchBoard" class="searchPlacement"></div>
+
 {% endblock main %}
 
 {% block content %}

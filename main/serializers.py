@@ -49,6 +49,8 @@ class CommentSerializer(serializers.ModelSerializer):
 			'user',
 			'comment',
 			'ticket',
+			'file',
+			'image',
 		)
 
 
@@ -58,4 +60,23 @@ class TicketDescSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Ticket
-		fields = ('description',)
+		fields = ('id','description',)
+
+
+class CommentEditSerializer(serializers.ModelSerializer):
+	"""
+	comment edit serializer
+	"""
+	class Meta:
+		model = Comment
+		fields = ('id','comment','file','image',)
+
+
+class BoardSerializer(serializers.ModelSerializer):
+	"""
+	board serializer
+	"""
+	class Meta:
+		model = Board
+		fields = ('id','title',)
+

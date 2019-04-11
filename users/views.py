@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .forms import SignUpValidation, LoginValidation
-from main.forms import BoardForms, TeamForms
+from main.forms import BoardForms, TeamForms, SearchForm, CommentForms
 from django.contrib.auth import login, authenticate
 from main.models import Board, Team
 
@@ -10,9 +10,11 @@ class HomeView(TemplateView):
     home view
     """
     template_name = "base.html"
+    comment_form = CommentForms()
 
     def get(self, *args, **kwargs):
-        return render(self.request, self.template_name)
+        return render(self.request, self.template_name,
+            {'comment_form': self.comment_form})
 
 
 class LoginView(TemplateView):
@@ -23,12 +25,15 @@ class LoginView(TemplateView):
     login_form = LoginValidation()
     board_form = BoardForms()
     team_form = TeamForms()
+    search_form = SearchForm()
+    comment_form = CommentForms()
 
     def get(self, *args, **kwargs):
         # import pdb; pdb.set_trace()
         return render(
             self.request, self.template_name,
-            {'forms': self.login_form})
+            {'forms': self.login_form,
+             'comment_form': self.comment_form})
 
     def post(self, *args, **kwargs):
         forms = LoginValidation(self.request.POST)
@@ -42,12 +47,15 @@ class LoginView(TemplateView):
             board_form = BoardForms()
             teams = self.request.user.teams.all()
             boards = Board.objects.filter(owner_id=self.request.user.id)
-
+            
             return render(self.request, 'main/home.html',
                 {'board_form': self.board_form,
                  'team_form': self.team_form,
+                 'search_form': self.search_form,
+                 'comment_form': self.comment_form,
                  'teams': teams,
                  'boards': boards})
+
         
         return render(self.request, self.template_name, 
             {'forms': forms})
@@ -61,6 +69,7 @@ class SignUpView(TemplateView):
     signup_form = SignUpValidation()
     board_form = BoardForms()
     team_form = TeamForms()
+    search_form = SearchForm()
 
 
     def get(self, *args, **kwargs):
@@ -79,7 +88,7 @@ class SignUpView(TemplateView):
             user = authenticate(
                 username=forms.cleaned_data.get('email'),
                 password=forms.cleaned_data.get('password'))
-            login(request, user)
+            login(self.request, user)
             team_form = TeamForms()
             board_form = BoardForms()
             teams = self.request.user.teams.all()
@@ -88,6 +97,7 @@ class SignUpView(TemplateView):
             return render(self.request, 'main/home.html',
                 {'board_form': self.board_form,
                  'team_form': self.team_form,
+                 'search_form': self.search_form,
                  'teams': teams,
                  'boards': boards})
 

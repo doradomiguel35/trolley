@@ -366,7 +366,23 @@ footer {
     cursor: pointer;
 }
 
-.add-card-btn:hover {
+.add-list-btn:hover {
+    background-color: #cdd2d4;
+    color: #4d4d4d;
+    text-decoration: underline;
+}
+
+.edit-list-btn {
+    display: block;
+    font-size: 12px;	
+    font-weight: 400;
+    color: #838c91;
+    padding: 1rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.edit-list-btn:hover {
     background-color: #cdd2d4;
     color: #4d4d4d;
     text-decoration: underline;
@@ -391,7 +407,8 @@ footer {
 }
 
 .add-card-btn::after,
-.add-list-btn::after {
+.add-list-btn::after,
+.edit-list-btn::after {
     content: '...';
 }
 
@@ -401,8 +418,45 @@ footer {
 
 }
 
-
 .ticket-modal{
 	margin-bottom: 5px;
+}
+
+.searchResults{
+	width: 285px;
+	height: 30px;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	background-color: #fafafa ;
+	padding: 5px;
+}
+
+.searches{
+	width: 300px;
+	min-height: 50px;
+	margin-left: 1470px;
+	border: .5px solid gray;
+	border-radius: 5px;
+	padding: 5px;
+	background-color: #e0e0e0;
+	
+}
+
+.searchFont{
+	font-family: 'abel';
+	font-size: 15px;
+}
+
+.searchPlacement{
+	display: inline-block;
+	position: absolute;
+}
+
+.edit-name-card-placement{
+	display: inline; 
+	width: 40px;
+	height: 30px;
+	margin-left: 180px; 
+	text-align: center;
 }
 
