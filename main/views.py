@@ -2,10 +2,13 @@ from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
     TicketDescForms, EditCommentForms, SearchForm,)
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from trolley.settings import AUTH_USER_MODEL
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
+from django_short_url.views import get_surl
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
     CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer,)
 
@@ -213,6 +216,7 @@ class CommentView(View):
     def get(self, *args, **kwargs):
         comment = Comment.objects.get(id=kwargs.get('comment_id'))
         serialize = CommentSerializer(comment).data
+        import pdb; pdb.set_trace()
         serialize['first_name'] = comment.user.first_name
         serialize['last_name'] = comment.user.last_name
 
@@ -229,6 +233,7 @@ class CommentView(View):
                 ticket_id=kwargs.get('ticket_id'))
 
             comment.save()
+            import pdb; pdb.set_trace() 
             serialize = CommentSerializer(comment).data
             serialize['first_name'] = self.request.user.first_name
             serialize['last_name'] = self.request.user.last_name
@@ -276,4 +281,32 @@ class DeleteComment(View):
         comment.delete()
 
         serializer = CommentEditSerializer(comment).data
+        return JsonResponse(serializer, safe=False)
+
+
+class CloseBoardView(View):
+    """
+    Close board
+    """
+
+    def post(self, *args, **kwargs):
+        board = Board.objects.get(id=kwargs.get('board_id'))
+        board_id = board.id
+        board.delete()
+        import pdb; pdb.set_trace()
+        return HttpResponseRedirect(reverse('main:home', kwargs={'id':self.request.user.id}))
+
+
+class UpdateCardListView(View):
+    """
+    This view is for the drag and drop event, automatically when the card is repositioned 
+    in other list this will trigger the view, update the card's list
+    """
+
+    def post(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket.lists_id = kwargs.get('lists_id')
+        ticket.save()
+
+        serializer = TicketSerializer(ticket).data
         return JsonResponse(serializer, safe=False)

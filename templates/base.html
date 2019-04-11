@@ -17,7 +17,7 @@
 <body>
     {% block main %}
     <nav class="navbar navbar-expand-lg navbar-light bg-info">
-        <a class="navbar-brand logo-font" href="{% url 'user:home' %}">TROLLEY</a>
+        <a class="navbar-brand logo-font" href="{% url 'user:login' %}">TROLLEY</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>
@@ -113,10 +113,10 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-
-
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+
 function add_list(event){
   event.preventDefault()
   console.log('add list ajax');
@@ -136,7 +136,7 @@ function add_list(event){
         `); 
       $('#insert-list').empty();
       $('.lists-container').append(
-        `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>`);
+        `<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left:15px;">Add a list</button>`);
       $('#btn-add-list').on('click',add_list_form);  
       $('.add-card-btn').click(add_card_form);
     }
@@ -149,7 +149,7 @@ function close_add_list(event){
   console.log('closed add list');
   $('#insert-list').empty();
   $('.lists-container').append(
-    `<button id="btn-add-list" class="add-list-btn btn" type="submit">Add a list</button>
+    `<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left:15px;">Add a list</button>
   `);
   $('#btn-add-list').on('click',add_list_form);  
 }
@@ -282,7 +282,7 @@ function modalClick(event){
             `+data.comment[i].comment+`
             <hr>
             <h1 class="login-forms" style="font-size:16px;">Files</h1>
-            <a href="/media/`+data.comment[i].image+`">`+data.comment[i].image+`</a>
+            <a href="/media/`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`"></a>
             <hr>
             <a href="/media/`+data.comment[i].file+`">`+data.comment[i].file+`</a>
             </div>  
@@ -384,6 +384,7 @@ function addComment(event){
     contentType: false,
     processData: false,
     success: function(data){
+      console.log(data);
       $('#comment_section').append(`
         <div class="editComment" id="editComment`+data.id+`" value=`+data.id +`>
         <h1 class="login-forms" style="font-size:16px; ">
@@ -391,7 +392,13 @@ function addComment(event){
           </h1>
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment+`
+            <hr>
+            <h1 class="login-forms" style="font-size:16px;">Files</h1>
+            <a href="/media/`+data.image+`"><img src="/media/`+data.image+`"></a>
+            <hr>
+            <a href="/media/`+data.file+`">`+data.file+`</a>
             </div>
+
             <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
             <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
               {% csrf_token %}
@@ -467,6 +474,7 @@ function editComment(event){
     method: "POST",
     data: $(this).serialize(),
     success: function(data){
+      console.log(data);
       $('#editComment'+data.id).empty();
       $('#editComment'+data.id).append(`
         <h1 class="login-forms" style="font-size:16px; ">
@@ -474,6 +482,11 @@ function editComment(event){
         </h1>
           <div class="alert alert-primary" role="alert" style="text-align: left;">
           `+data.comment+`
+          <hr>
+            <h1 class="login-forms" style="font-size:16px;">Files</h1>
+            <a href="/media/`+data.image+`"><img src="`+data.image+`"></a>
+            <hr>
+            <a href="/media/`+data.file+`">`+data.file+`</a>
           </div>
           <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
           <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
@@ -494,6 +507,7 @@ function closeEditComment_form(event){
     url:url,
     data: $(this).serialize(),
     success: function(data){
+      console.log(data);
       $('#editComment'+data.id).empty();
       $('#editComment'+data.id).append(`
         <h1 class="login-forms" style="font-size:16px; ">
@@ -501,6 +515,10 @@ function closeEditComment_form(event){
           </h1>
             <div class="alert alert-primary" role="alert" style="text-align: left;">
             `+data.comment+`
+            <h1 class="login-forms" style="font-size:16px;">Files</h1>
+            <a href="/media/`+data.image+`"><img src="`+data.image+`"></a>
+            <hr>
+            <a href="/media/`+data.file+`">`+data.file+`</a>
             </div>
             
             <button value="`+data.id+`" class="btn btn-primary form-inline editCommentBtn" style="display:inline-block">Edit</button>
@@ -559,6 +577,36 @@ function searchBoard(event){
 }
 
 //events
+$('.list-items').sortable({
+  connectWith: '.list-items',
+  revert: true,
+  stop: function(event,ui){
+    console.log($(this).attr('value'));
+  }
+});
+
+$('.lists-container').sortable({
+  connectWith: '.lists-container',
+  revert: true, 
+  axis: 'x',
+  cancel: '.add-list-btn'
+});
+
+$('.ticket-modal').draggable({
+  stop: function(event, ui){
+    var list_id = $(this).parents().attr('value');
+    var ticket_id = $(this).attr('value');
+    $(this).attr('method','post');
+    // url for updating: ticket_id, list_id
+    $(this).attr('action','/main/board/card/change/'+list_id+'/'+ticket_id+'/');
+    console.log($(this).attr('method'));
+  }, 
+  connectToSortable: '.list-items',
+  revert: true
+});
+
+$('.lists-container').disableSelection();  
+$('.list-items').disableSelection();
 $('.searchBoardForm').on('submit',searchBoard);
 $('.ticket-modal').on('click',modalClick);
 $('.close').on('click', closeModalTicket);

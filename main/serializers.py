@@ -49,6 +49,8 @@ class CommentSerializer(serializers.ModelSerializer):
 			'user',
 			'comment',
 			'ticket',
+			'file',
+			'image',
 		)
 
 
@@ -67,7 +69,7 @@ class CommentEditSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Comment
-		fields = ('id','comment',)
+		fields = ('id','comment','file','image',)
 
 
 class BoardSerializer(serializers.ModelSerializer):

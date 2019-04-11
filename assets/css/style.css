@@ -366,7 +366,23 @@ footer {
     cursor: pointer;
 }
 
-.add-card-btn:hover {
+.add-list-btn:hover {
+    background-color: #cdd2d4;
+    color: #4d4d4d;
+    text-decoration: underline;
+}
+
+.edit-list-btn {
+    display: block;
+    font-size: 12px;	
+    font-weight: 400;
+    color: #838c91;
+    padding: 1rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.edit-list-btn:hover {
     background-color: #cdd2d4;
     color: #4d4d4d;
     text-decoration: underline;
@@ -391,7 +407,8 @@ footer {
 }
 
 .add-card-btn::after,
-.add-list-btn::after {
+.add-list-btn::after,
+.edit-list-btn::after {
     content: '...';
 }
 
@@ -433,5 +450,13 @@ footer {
 .searchPlacement{
 	display: inline-block;
 	position: absolute;
+}
+
+.edit-name-card-placement{
+	display: inline; 
+	width: 40px;
+	height: 30px;
+	margin-left: 180px; 
+	text-align: center;
 }
 
