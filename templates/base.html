@@ -142,20 +142,46 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
 
+function invite_success(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: 'POST',
+    data: $(this).serialize(),
+    success: function(data){
+      $('.invite-form').empty();
+      $('.invite-form').append(`
+        <h1 class="login-forms" style="font-size: 15px;margin-right250px;">
+          Successfully sent a invite to `+data.email+`
+        </h1>
+        <button value="`+data.board_id+`" type="button" class="btn btn-success" id="invite-user-btn" style="float:left;">
+          <h1 class="login-forms" style="font-size: 15px;">
+            <i class="material-icons" style="font-size:30px;">person</i>Invite
+          </h1>
+        </button>
+      `);
+      $('#invite-user-btn').on('click',invite_form);
+    }
+  });
+
+}
+
 function invite_form(event){
   var board_id = $(this).attr('value');
-  $('#invite-user-btn').before(`
-    <form method='post' action="/main/board/invite/`+board_id+`/" class="invite-form-btn" style="margin-right:250px;">
+  $('.invite-form').empty();
+  $('.invite-form').append(`
+    <form value="`+board_id+`" method='post' action="/main/board/invite/`+board_id+`/" class="invite-form-btn" style="margin-right:250px;">
       {% csrf_token %}
       {% render_field invite_form.email class="form-control" placeholder="Email address"   style="margin-bottom:10px;" %}
       <button type="submit" class="btn btn-primary">Submit</button>
       <button value="`+board_id+`" type="button" class="btn btn-danger cancel-invite-form">Cancel</button>
     </form>
   `);
-  $(this).remove();
+  $('.invite-form-btn').on('submit',invite_success);
   $('.cancel-invite-form').on('click',close_invite_form);
 }
-
 function close_invite_form(event){
   var board_id = $(this).attr('value');
   $('.invite-form').empty();
@@ -172,7 +198,6 @@ function close_invite_form(event){
 function displayMembers(event){
   event.preventDefault();
   var url = $(this).attr('action');
-
   $.ajax({
     url:url,
     data: $(this).serialize(),
@@ -191,7 +216,6 @@ function displayMembers(event){
     }
   })
 }
-
 function add_list(event){
   event.preventDefault()
   console.log('add list ajax');
@@ -215,11 +239,9 @@ function add_list(event){
       $('#btn-add-list').on('click',add_list_form);  
       $('.add-card-btn').click(add_card_form);
     }
-
   });
   event.stopImmediatePropagation();
 }
-
 function close_add_list(event){
   event.preventDefault();
   console.log('closed add list');
@@ -229,7 +251,6 @@ function close_add_list(event){
   `);
   $('#btn-add-list').on('click',add_list_form);  
 }
-
 function add_list_form(event){
   event.preventDefault();
   console.log('clicked add list form');
@@ -247,12 +268,10 @@ function add_list_form(event){
         </form>
       </ul>
       </div>`)
-
   );
   $('#close-add').on('click',close_add_list);
   $('#add-list-ajax').on('submit',add_list); 
 }
-
 function add_card(event){
   event.preventDefault();
   var list_id = $(this).attr('value'); 
@@ -270,10 +289,8 @@ function add_card(event){
         <button type="submit" hidden="hidden">trigger</button>
         </form>
       `);
-
       $('#add-card-form-'+list_id).replaceWith(`
           <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
-
       $('.add-card-btn').click(add_card_form);
       $('.ticket-modal').on('click',modalClick);
       $('.list-items').sortable({
@@ -285,7 +302,6 @@ function add_card(event){
           console.log($(this).attr('value'));
         }
       });
-
       $('.ticket-modal').draggable({
         stop: function(event, ui){
           var orig_action = $(this).attr('action');
@@ -307,12 +323,10 @@ function add_card(event){
   }).done();
   event.stopImmediatePropagation();
 }
-
 function add_card_form(event){
   event.preventDefault();
   console.log('clicked add card form');
   var list_id=$(this).attr('value');
-
   $(this).replaceWith(`
     <div class="add-card-form" id="add-card-form-`+list_id+`">
     <form method="post" value=`+list_id+` action="/main/board/create/card/`+list_id+`/" class="add-card-ajax">
@@ -327,7 +341,6 @@ function add_card_form(event){
   $('.btn.btn-danger').on('click',close_card_form);
   $('.add-card-ajax').on('submit',add_card);
 }
-
 function close_card_form(event){
   event.preventDefault();
   list_id = $(this).attr('value');
@@ -337,12 +350,9 @@ function close_card_form(event){
   
   $('.add-card-btn').on('click',add_card_form);
 }
-
 function allowDrop(ev) {
   ev.preventDefault();
-
 }
-
 function drag(ev) {
   ev.dataTransfer.setData("text", ev.target.id);
 }
@@ -352,7 +362,6 @@ function drop(ev) {
   var data = ev.dataTransfer.getData("text");
   ev.target.appendChild(document.getElementById(data));
 }
-
 function modalClick(event){
   event.preventDefault();
   console.log('clicked modal');
@@ -374,11 +383,9 @@ function modalClick(event){
             <button class="btn btn-primary" type="submit">Submit  </button>
           </form>`; 
       }
-
       else{
         description = data.description+`<hr><button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit </button>`;
       }
-
       for(var i = 0; i < data.comment.length; i++){
         comments+=`<div class="editComment" id="editComment`+data.comment[i].id+`" value=`+data.comment[i].id +`>
           <h1 class="login-forms" style="font-size:16px; ">
@@ -445,7 +452,6 @@ function modalClick(event){
           </div>
         </div>
       `);
-
       $('.comment').submit(addComment);
       $('.description').submit(writeDescription);
       $('.editCommentBtn').on('click', editComment_form);
@@ -456,7 +462,6 @@ function modalClick(event){
   });
    
 }
-
 function editDescForm(event){
   event.preventDefault();
   ticket_id = $(this).attr('value');
@@ -473,11 +478,9 @@ function editDescForm(event){
   `);
   $('.description').submit(writeDescription);
 }
-
 function closeModalTicket(event){
   $('#insert-modal-ticket').empty();
 }
-
 function addComment(event){
   event.preventDefault();
   var url=$(this).attr('action');
@@ -504,7 +507,6 @@ function addComment(event){
             <hr>
             <a href="`+data.file+`">`+data.file+`</a>
             </div>
-
             <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
             <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
               {% csrf_token %}
@@ -519,7 +521,6 @@ function addComment(event){
   });
   event.stopImmediatePropagation();
 }
-
 function deleteComment(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -532,7 +533,6 @@ function deleteComment(event){
     }
   })
 }
-
 function writeDescription(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -551,7 +551,6 @@ function writeDescription(event){
     }
   })
 }
-
 function editComment_form(event){
   event.preventDefault();
   var comment_id= $(this).attr('value');
@@ -566,12 +565,10 @@ function editComment_form(event){
       <button class="btn btn-danger" type="submit">Cancel</button>
     </form>
   `);
-
    $('.form-edit-close').submit(closeEditComment_form);
    $('.form-edit-comment').submit(editComment);
    $('.delete-comment-btn').submit(deleteComment);
 }
-
 function editComment(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -604,11 +601,9 @@ function editComment(event){
   });
   event.stopImmediatePropagation();
 }
-
 function closeEditComment_form(event){
   event.preventDefault();
   var url = $(this).attr('action');
-
   $.ajax({
     url:url,
     data: $(this).serialize(),
@@ -636,29 +631,24 @@ function closeEditComment_form(event){
     }
   });
 }
-
 function searchBoard(event){
   event.preventDefault();
   url = $(this).attr('action');
   console.log('change');
-
   $('#searchBoard').append(`
     <div id="searchBoardResults" class="searches">
     <h1 class="searchFont">Search Results</h1>
     <hr>
     </div>
   `);
-
   $.ajax({
     url:url,
     data: $(this).serialize(),
     success: function(data){
       console.log(data);
-
       if($('#searchForm').val() === ''){
           $('#searchBoard').empty();
       }
-
       else if(data.boards[0] === undefined){
         $('#searchBoardResults').append(`
         <div class="searchResults">
@@ -666,7 +656,6 @@ function searchBoard(event){
         </div>
       `);
       }
-
       else{
         $('#searchBoardResults').append(`
           <div class="searchResults">
@@ -695,6 +684,41 @@ function changeList(event){
   });
 }
 
+function close_invites(event){
+   $('.dropdown-menu').removeClass('show');
+}
+
+function invite_board(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log('click');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      $('.dropdown-menu').addClass('show');
+      $('.insert-invitations').empty();
+
+      for(var i = 0; i < data.invites.length; i++){
+        $('.insert-invitations').append(`
+          <li class"invitations-dropdown">
+            <h1 class="login-forms" style="font-size:14px;">
+               You are invited by `+data.invites[i].invited_by__email+` to collaborate with a board (`+data.invites[i].board__title+`) 
+              </h1>
+              <form method="post" action="/main/board/invite/confirm/`+data.invites[i].board_id+`/`+data.invites[i].id+`/" style="display: inline;">
+              {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Confirm</button>
+                <button type="button" class="btn btn-danger close-invitations">Cancel</button>
+              </form>
+          </li>
+          <hr>
+        `);
+      }
+      $('.close-invitations').on('click',close_invites);
+    }
+  });
+}
 
 //events
 $('.list-items').sortable({
@@ -730,6 +754,8 @@ $('.ticket-modal').draggable({
   revert: true
 });
 
+$('.btn-close-invitations').on('click', close_invites);
+$('.invitations').on('submit', invite_board);
 $('#invite-user-btn').on('click',invite_form);
 $('.ticket-modal').on('submit',changeList);
 $('.lists-container').disableSelection();  

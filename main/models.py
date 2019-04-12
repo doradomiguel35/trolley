@@ -89,9 +89,10 @@ class InviteToBoard(models.Model):
     """
     Invite to board
     """
-    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name="invited")
     confirmed = models.BooleanField(default=False)
     board = models.ForeignKey('main.Board', on_delete=models.SET_NULL, null=True)
+    invited_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name="invited_by")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)

@@ -47,7 +47,8 @@ class MainView(TemplateView):
         search_form = SearchForm()
         comment_form = CommentForms()
         teams = self.request.user.teams.all()
-        boards = Board.objects.filter(owner_id=self.request.user.id)
+        boards = Board.objects.filter(member__id=self.request.user.id)
+
         return render(self.request, 'main/home.html',
             {'team_form': team_form,
              'board_form': board_form,
@@ -107,7 +108,6 @@ class BoardView(TemplateView):
             board.save()
             board.member.add(self.request.user)
             board.save()
-            import pdb; pdb.set_trace()
             team = self.request.user.teams.all()
             lists = List.objects.filter(board_id=board.id)
             tickets = Ticket.objects.filter(lists_id__in=lists)
@@ -222,7 +222,6 @@ class CommentView(View):
                 ticket_id=kwargs.get('ticket_id'))
 
             comment.save()
-            import pdb; pdb.set_trace() 
             serialize = CommentSerializer(comment).data
             serialize['first_name'] = self.request.user.first_name
             serialize['last_name'] = self.request.user.last_name
@@ -315,13 +314,12 @@ class InviteToBoardView(View):
                 invite = InviteToBoard.objects.get(user_id=user.id,
                     board_id=kwargs.get('board_id'))   
             except:
-                invite = Invite(user_id=user.id,
-                    board_id=kwargs.get('board.id'))
+                invite = InviteToBoard(user_id=user.id,
+                    board_id=kwargs.get('board_id'),invited_by_id=self.request.user.id)
                 invite.save()
-            
-            import pdb; pdb.set_trace()
+
             serializer = InviteBoardSerializer(invite).data
-            
+            serializer['email'] = user.email
             return JsonResponse(serializer, safe=False)
 
 
@@ -349,10 +347,37 @@ class MemberBoardView(View):
     """
 
     def get(self, *args, **kwargs):
-        board_members = Board.objects.get(id=kwargs.get('board_id')).member.all().values('id','email','first_name','last_name')
+        board_members = Board.objects.get(
+            id=kwargs.get('board_id')).member.all().values('id','email','first_name','last_name')
 
         serializer = {'members': list(board_members)}
         return JsonResponse(serializer, safe=False)
+
+
+class BoardInvites(View):
+    """
+    Display invitations from users
+    """
+
+    def get(self, *args, **kwargs):
+        invites = InviteToBoard.objects.filter(
+            user_id=self.request.user.id,confirmed=False).order_by('-date_created').values('id','confirmed','board__title','board_id','invited_by__email')
+
+        serializer = {'invites': list(invites)}
+        return JsonResponse(serializer, safe=False)
+
+    def post(self, *args, **kwargs):
+        invite = InviteToBoard.objects.get(id=kwargs.get('invite_id'))
+        invite.confirmed = True
+        invite.save()
+
+        board = Board.objects.get(id=kwargs.get('board_id')) 
+        board.member.add(self.request.user)
+        board.save()
+
+        return HttpResponseRedirect(reverse('main:board_view', kwargs={'id': board.id}))
+
+
 
 
 

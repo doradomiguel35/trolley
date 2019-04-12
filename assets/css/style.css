@@ -434,7 +434,7 @@ footer {
 .searches{
 	width: 300px;
 	min-height: 50px;
-	margin-left: 1470px;
+	margin-left: 1420px;
 	border: .5px solid gray;
 	border-radius: 5px;
 	padding: 5px;
@@ -465,3 +465,31 @@ footer {
 	height: 300px;
 }
 
+.invitesPlacement{
+	display: inline-block;
+	position: absolute;
+}
+
+.dropdown-menu{
+	margin-left: 1600px;
+	width: 250px;
+	min-height: 50px;
+	border: .5px solid gray;
+	border-radius: 5px;
+	padding: 5px;
+	background-color: #e0e0e0;
+}
+
+.invitations-dropdown{
+	width: 237px;
+	min-height: 30px;
+	border-radius: 3px;
+	margin-bottom: 20px;
+	background-color: #fafafa ;
+	padding: 5px;
+	overflow-y: auto; 
+}
+
+.btn-close-invitations{
+	margin-left: 120px;
+}

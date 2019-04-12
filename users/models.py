@@ -13,7 +13,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     teams = models.ManyToManyField('main.Team', blank=True)
 
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     date_joined = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
