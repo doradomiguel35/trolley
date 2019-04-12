@@ -16,7 +16,10 @@
 			<button type="submit" class="btn btn-danger">Close Board</button>
 		</form>
 		{% else %}
-		<button type="button" class="btn btn-danger">Leave Board</button>
+		<form method="post" action="{% url 'main:leave_board' board.id %}" style="display: inline;">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-danger">Leave Board</button>
+		</form>
 		{% endif %}
 	</div>
 	

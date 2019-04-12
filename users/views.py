@@ -1,9 +1,13 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from .forms import SignUpValidation, LoginValidation
 from main.forms import BoardForms, TeamForms, SearchForm, CommentForms
 from django.contrib.auth import login, authenticate
 from main.models import Board, Team
+from django.contrib.auth import logout
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 
 class HomeView(TemplateView):
     """
@@ -105,6 +109,15 @@ class SignUpView(TemplateView):
             {'forms': forms})
 
 
+class LogoutView(View):
+    """
+    Logout User
+    """
+
+    def post(self, *args, **kwargs):
+        logout(self.request)
+
+        return HttpResponseRedirect(reverse('user:login'))
 
 
 

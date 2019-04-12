@@ -50,16 +50,7 @@
 					<ul class="dropdown-menu" id="ul-invitations">
 						<h1 class="login-forms" style="font-size: 20px;">Invitations<buttons type="button" class="btn btn-danger btn-close-invitations">X</button></h1>
 						<div class="insert-invitations">
-							<!-- <li class="invitations-dropdown">
-								<h1 class="login-forms" style="font-size:12px;">
-
-								</h1>
-								<form style="display: inline;">
-								<button type="submit" class="btn btn-primary">Confirm</button>
-								<button type="button" class="btn btn-danger">Cancel</button>
-								</form>
-								
-							</li> -->
+							
 						</div>
 		            </ul>
 		            <button type="submit" hidden="hidden"></button>
@@ -71,9 +62,18 @@
 				</button>
 			</li>
 			<li class="nav-item main-nav-margin">
-				<a href="" class="btn primary btn-primary round-button">
+				<a href="" class="btn primary btn-primary round-button"  data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 					<i class="material-icons" style="font-size:18px;color: #ffffff">person</i>
+					<span class="caret"></span>
 				</a>
+				<ul class="dropdown-menu" id='profile-dropdown'>
+					<li>
+						<form method="post" action="{% url 'user:logout' %}">
+							{% csrf_token %}
+							<button type="submit" class="btn btn-primary"> Logout</button>
+						</form>	
+					</li>
+					</ul>
 			</li>
         </ul>
     </div>

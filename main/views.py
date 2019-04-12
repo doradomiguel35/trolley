@@ -354,7 +354,7 @@ class MemberBoardView(View):
         return JsonResponse(serializer, safe=False)
 
 
-class BoardInvites(View):
+class BoardInvitesView(View):
     """
     Display invitations from users
     """
@@ -378,6 +378,16 @@ class BoardInvites(View):
         return HttpResponseRedirect(reverse('main:board_view', kwargs={'id': board.id}))
 
 
+class LeaveBoardView(View):
+    """
+    Allow regular users to leave the board
+    """
 
+    def post(self, *args, **kwargs):
+        invite = InviteToBoard.objects.get(user_id=self.request.user.id,board_id=kwargs.get('board_id'))
+        invite.delete()
+        board = Board.objects.get(id=kwargs.get('board_id'))
+        board.member.remove(self.request.user)
+        board.save()    
 
-
+        return HttpResponseRedirect(reverse('main:home', kwargs={'id': self.request.user.id}))

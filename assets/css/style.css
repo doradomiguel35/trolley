@@ -493,3 +493,13 @@ footer {
 .btn-close-invitations{
 	margin-left: 120px;
 }
+
+#profile-dropdown{
+	margin-left: 1650px;
+	width: 190px;
+	min-height: 50px;
+	border: .5px solid gray;
+	border-radius: 5px;
+	padding: 5px;
+	background-color: #e0e0e0;
+}
