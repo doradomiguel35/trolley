@@ -15,6 +15,12 @@
 	src: url(../fonts/Abel-Regular.ttf);
 }
 
+.main{
+  padding: 16px;
+  margin-top: 30px;
+  min-height: 1000px;
+}
+
 .logo-font{
 	font-family: pacifico;
 	font-size: 30px;
@@ -471,7 +477,7 @@ footer {
 }
 
 .dropdown-menu{
-	margin-left: 1600px;
+	margin-left: 1500px;
 	width: 250px;
 	min-height: 50px;
 	border: .5px solid gray;

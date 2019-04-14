@@ -283,11 +283,13 @@ function add_card(event){
     data: $(this).serialize(),
     success: function(data){
       $('#ul-'+list_id).append(`
-        <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" value="`+data.id+`" data-toggle="modal" data-target="#ticketModal">
-        {% csrf_token %}
-        <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">`+data.name+`</li>
-        <button type="submit" hidden="hidden">trigger</button>
-        </form>
+        <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">
+          <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" value="`+data.id+`" data-toggle="modal" data-target="#ticketModal">
+            {% csrf_token %}
+            `+data.name+`
+            <button type="submit" hidden="hidden">trigger</button>
+          </form>
+        </li>
       `);
       $('#add-card-form-'+list_id).replaceWith(`
           <button value="`+list_id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>`);
@@ -723,36 +725,30 @@ function invite_board(event){
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
-  start: function(event,ui){
-    $(this).css('overflow-y','');
-  },
   stop: function(event,ui){
     console.log($(this).attr('value'));
-  }
+  },
+  receive: function(event,ui){
+    var form = $(ui.item[0]).find('form');
+    var orig_action = form.attr('action');
+    var orig_method = form.attr('method');
+    var ticket_id = form.attr('value');
+    var list_id = $(this).attr('value');
+    form.attr('method','post');
+    form.attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
+    form.trigger('submit');
+    form.attr('action', orig_action);
+    form.attr('method', orig_method);
+  },
+  revert: true
 });
 
 $('.lists-container').sortable({
   connectWith: '.lists-container',
-  revert: true, 
   axis: 'x',
   cancel: '.add-list-btn'
 });
 
-$('.ticket-modal').draggable({
-  stop: function(event, ui){
-    var orig_action = $(this).attr('action');
-    var orig_method = $(this).attr('method');
-    var list_id = $(this).parents().attr('value');
-    var ticket_id = $(this).attr('value');
-    $(this).attr('method','post');
-    $(this).attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
-    $(this).trigger('submit');
-    $(this).attr('action',orig_action);
-    $(this).attr('method',orig_method);
-  }, 
-  connectToSortable: '.list-items',
-  revert: true
-});
 
 $('.btn-close-invitations').on('click', close_invites);
 $('.invitations').on('submit', invite_board);

@@ -41,17 +41,19 @@
 
 			</li>
 			<li class="nav-item main-nav-margin">
-				
 				<form method="get" action="{% url 'main:view_invites' %}" class="invitations">
 					<button type="submit" class="btn btn-primary" id="invite-dropdown-btn">
 						<span class="caret"></span>
 						<i class="material-icons" style="font-size:15px">insert_invitation</i>
 					</button>
 					<ul class="dropdown-menu" id="ul-invitations">
-						<h1 class="login-forms" style="font-size: 20px;">Invitations<buttons type="button" class="btn btn-danger btn-close-invitations">X</button></h1>
-						<div class="insert-invitations">
-							
-						</div>
+						<h1 class="login-forms" style="font-size: 20px;">
+							Invitations
+							<buttons type="button" class="btn btn-danger btn-close-invitations">
+								X
+							</button>
+						</h1>
+						<div class="insert-invitations"></div>
 		            </ul>
 		            <button type="submit" hidden="hidden"></button>
 		        </form>
@@ -73,7 +75,7 @@
 							<button type="submit" class="btn btn-primary"> Logout</button>
 						</form>	
 					</li>
-					</ul>
+				</ul>
 			</li>
         </ul>
     </div>
@@ -81,7 +83,7 @@
 <div id="searchBoard" class="searchPlacement"></div>
 
 {% endblock main %}
-
+<div class="main">
 {% block content %}
 	<div class="wrapper">
 		<section class="columns">
@@ -113,5 +115,5 @@
 	   		</div>	
 	   	</section>
    	</div>
-</div>
 {% endblock content %}
+</div>
