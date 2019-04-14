@@ -72,7 +72,7 @@ class CommentForms(forms.ModelForm):
     """
     Comment forms
     """
-    comment = forms.CharField(widget=forms.Textarea, required=False)
+    comment = forms.CharField(widget=forms.Textarea)
     image = forms.ImageField(required=False)
     file = forms.FileField(required=False)
 
