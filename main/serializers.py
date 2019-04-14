@@ -1,4 +1,4 @@
-from .models import Board, Team, List, Ticket, Comment
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard
 from rest_framework import serializers
 
 
@@ -78,5 +78,14 @@ class BoardSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Board
-		fields = ('id','title',)
+		fields = ('id','title','visibility','member')
 
+
+class InviteBoardSerializer(serializers.ModelSerializer):
+	"""
+	invite to board serializer
+	"""
+	class Meta:
+		model = InviteToBoard
+		fields = ('id','confirmed','board','invited_by')
+		

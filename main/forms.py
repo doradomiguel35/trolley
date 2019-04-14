@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team, List, Ticket, Comment
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard
 from users.models import User
 
 
@@ -72,34 +72,13 @@ class CommentForms(forms.ModelForm):
     """
     Comment forms
     """
-    comment = forms.CharField(widget=forms.Textarea, required=False)
+    comment = forms.CharField(widget=forms.Textarea)
     image = forms.ImageField(required=False)
     file = forms.FileField(required=False)
 
     class Meta:
         model = Comment
         fields = ('comment','file','image',)
-
-# class CommentImageForm(forms.ModelForm):
-#     """
-#     Comment Image Form
-#     """
-    
-#     image = forms.ImageField(required=False)
-#     class Meta:
-#         model = Comment
-#         fields = ('image',)
-
-
-# class CommentFileForm(forms.ModelForm):
-#     """
-#     Comment File Form
-#     """
-#     file = forms.FileField(required=False)
-    
-#     class Meta:
-#         model = Comment
-#         fields = ('file',)
 
 
 class EditCommentForms(forms.ModelForm):
@@ -122,4 +101,12 @@ class SearchForm(forms.ModelForm):
     class Meta:
         model = Board
         fields = ('title',)
+
+
+class InviteUserBoardForm(forms.Form):
+    """
+    Invite user to board
+    """
+    email = forms.EmailField()
+    
 

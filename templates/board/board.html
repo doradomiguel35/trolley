@@ -7,36 +7,42 @@
 	<div class="board-nav">
 		<h1 class="board-nav-title" style="margin-right: 10px;">{{ board.title }} &nbsp|</h1>
 		<h1 class="board-nav-title">|&nbsp {{ board.visibility}} &nbsp</h1>
-		<button type="button" class="btn btn-success" >Members</button>
+		<form method="get" action="{% url 'main:members' board.id %}" class="members-modal-view" style="display: inline;">
+			<button value="{{ board.id }}" type="submit" class="btn btn-success" data-target="#memberModal" data-toggle="modal">Members</button>
+		</form>
 		{% if board.owner.id == user.id %}
 		<form method="post" action="{% url 'main:close_board' board.id %}" style="display: inline;">
 			{% csrf_token %}
 			<button type="submit" class="btn btn-danger">Close Board</button>
 		</form>
 		{% else %}
-		<button type="button" class="btn btn-danger">Leave Board</button>
+		<form method="post" action="{% url 'main:leave_board' board.id %}" style="display: inline;">
+			{% csrf_token %}
+			<button type="submit" class="btn btn-danger">Leave Board</button>
+		</form>
 		{% endif %}
 	</div>
 	
 	<section class="lists-container">
 
-	{% for list in lists %}
+		{% for list in lists %}
 	<div id="list-{{ list.id }}" class="list">
-
+		
 		<h3 class="list-title">
-			{{ list.name }}<button id="btn-edit-name-list" class="edit-list-btn btn" style="display: inline; width: 40px;height: 30px;margin-left: 180px; text-align: center;" >.</button>
+			{{ list.name }}
+			<button id="btn-edit-name-list" class="edit-list-btn btn" style="display: inline;text-align: center;" ></button>	
 		</h3>
 		
 		<ul value="{{ list.id }}" id="ul-{{ list.id }}" class="list-items">
 			{% for ticket in tickets %}
 				{% if ticket.lists_id == list.id %}
-				<form method="get" action="{% url 'main:ticket_view' ticket.id %}" value="{{ticket.id}}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+				<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}" class="modal-li-draggable"> 
+					<form method="get" action="{% url 'main:ticket_view' ticket.id %}" value="{{ticket.id}}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
 					{% csrf_token %}
-					<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}" class="modal-li-draggable"> 
-						{{ ticket.name }}
-					</li>
+					{{ ticket.name }}
 					<button type="submit" hidden="hidden">trigger</button>
-				</form>
+					</form>
+				</li>
 				{% endif %}
 			{% endfor %}
 		</ul>

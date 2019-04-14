@@ -41,14 +41,41 @@
 
 			</li>
 			<li class="nav-item main-nav-margin">
+				<form method="get" action="{% url 'main:view_invites' %}" class="invitations">
+					<button type="submit" class="btn btn-primary" id="invite-dropdown-btn">
+						<span class="caret"></span>
+						<i class="material-icons" style="font-size:15px">insert_invitation</i>
+					</button>
+					<ul class="dropdown-menu" id="ul-invitations">
+						<h1 class="login-forms" style="font-size: 20px;">
+							Invitations
+							<buttons type="button" class="btn btn-danger btn-close-invitations" style="margin-left: 100px;">
+								X
+							</button>
+						</h1>
+						<div class="insert-invitations"></div>
+		            </ul>
+		            <button type="submit" hidden="hidden"></button>
+		        </form>
+			</li>
+			<li class="nav-item main-nav-margin">
 				<button class="btn primary btn-primary" data-target="#addBoard" data-toggle="modal">
 					<i class="fa fa-plus" style="font-size:15px;color: #ffffff"></i>
 				</button>
 			</li>
 			<li class="nav-item main-nav-margin">
-				<a href="" class="btn primary btn-primary round-button">
+				<a href="" class="btn primary btn-primary round-button"  data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 					<i class="material-icons" style="font-size:18px;color: #ffffff">person</i>
+					<span class="caret"></span>
 				</a>
+				<ul class="dropdown-menu" id='profile-dropdown'>
+					<li>
+						<form method="post" action="{% url 'user:logout' %}">
+							{% csrf_token %}
+							<button type="submit" class="btn btn-primary"> Logout</button>
+						</form>	
+					</li>
+				</ul>
 			</li>
         </ul>
     </div>
@@ -56,7 +83,6 @@
 <div id="searchBoard" class="searchPlacement"></div>
 
 {% endblock main %}
-
 {% block content %}
 	<div class="wrapper">
 		<section class="columns">
@@ -64,16 +90,6 @@
 				<a href="#" class="btn btn-outline-primary feed-button-left" >Boards</a><br>
 				<a href="#" class="btn btn-outline-secondary feed-button-left">Home</a><br>
 				
-				<h1 class="feed-text-left">TEAMS</h1>
-				{% for team in teams %}
-				<a href="{% url 'main:team' team.id %}" class="btn btn-outline-secondary feed-button-left">
-					<i class="material-icons" style="font-size:14px">people</i>&nbsp {{ team.name }}
-				</a><br>
-				{% endfor %}
-				<button class="btn btn-outline-primary feed-button-left" style="margin-top: 20px;" data-target=#createTeam data-toggle="modal">
-					<i class="fa fa-plus" style="font-size:14px;"></i> Create a team
-				</a>
-
 	   		</div>
 	   		<div class="column">
 	   			lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -98,5 +114,4 @@
 	   		</div>	
 	   	</section>
    	</div>
-</div>
 {% endblock content %}

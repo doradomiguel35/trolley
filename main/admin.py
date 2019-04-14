@@ -1,5 +1,5 @@
 from django.contrib import admin
-from. models import Board, Team, Ticket, Comment, List
+from. models import Board, Team, Ticket, Comment, List, InviteToBoard
 
 
 class BoardAdmin(admin.ModelAdmin):
@@ -43,8 +43,18 @@ class ListAdmin(admin.ModelAdmin):
 	model = List
 	list_display = ('name','board')
 
+
+class InviteBoardAdmin(admin.ModelAdmin):
+	"""
+	Invite to Board Admin
+	"""
+	model = InviteToBoard
+	list_display = ('confirmed','user','board')
+
+
 admin.site.register(Board, BoardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(List, ListAdmin)
+admin.site.register(InviteToBoard, InviteBoardAdmin)
