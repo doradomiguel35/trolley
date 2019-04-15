@@ -131,9 +131,8 @@
           </div>
         </div>
       </div>
-
-
-
+    </div>
+    
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -227,7 +226,20 @@ function add_list(event){
     success: function(data){
       $('#inserted-list').before(`
         <div id="list-`+data.id+`" class="list">
-          <h3 class="list-title">`+data.name+`</h3>
+          <h3 class="list-title">`
+            +data.name+
+            `<div class="dropdown show" style="display: inline-block;text-align: center;">
+              <a class="edit-list-btn btn" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              </a>
+              <div class="dropdown-menu list-dropdown" aria-labelledby="dropdownMenuLink">
+                <form method="post" action="/main/board/archive/list/`+data.id+`/" class="btn-archive-list">
+                  {% csrf_token %}
+                    <button class="dropdown-item" type="submit">Archive</button>
+                  </form>
+                  <a class="dropdown-item" href="#">Edit</a>
+                </div>
+            </div>
+          </h3>
           <ul value="`+data.id+`" id="ul-`+data.id+`" class="list-items"> 
           </ul>
           <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
@@ -235,7 +247,8 @@ function add_list(event){
         `); 
 
       //events
-      // $('#insert-list').empty();
+      $('.btn-archive-list').on('submit', archiveList);
+
       $('.list_form').replaceWith(
         `<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left:15px;">Add a list</button>`);
       $('#btn-add-list').on('click',add_list_form);  
@@ -312,7 +325,7 @@ function add_card(event){
     data: $(this).serialize(),
     success: function(data){
       $('#ul-'+list_id).append(`
-        <li draggable="true" ondragstart="drag(event)" id="`+data.id+`" class="modal-li-draggable">
+        <li draggable="true" ondragstart="drag(event)" id="ticket-`+data.id+`" class="modal-li-draggable">
           <form method="get" action="/main/board/view/card/`+data.id+`/" class="ticket-modal" value="`+data.id+`" data-toggle="modal" data-target="#ticketModal">
             {% csrf_token %}
             `+data.name+`
@@ -362,7 +375,7 @@ function add_card_form(event){
     <div class="add-card-form" id="add-card-form-`+list_id+`">
     <form method="post" value=`+list_id+` action="/main/board/create/card/`+list_id+`/" class="add-card-ajax">
       {% csrf_token %}
-      {% render_field ticket_form.name class+="form-control" placeholder="Name new list" %}
+      {% render_field ticket_form.name class+="form-control" placeholder="Name new card" %}
       <br>
       <button class="btn btn-primary" type="submit">Submit</button>
       <button class="btn btn-danger" id="close-add-card-form" value=`+list_id+`>X</button> 
@@ -412,7 +425,7 @@ function modalClick(event){
           <form method="post" action="/main/board/view/card/description/`+data.id+`/" class="description">
             {% csrf_token %}
             {% render_field ticket_desc_form.description class+='form-control' rows='5' style="margin-bottom: 10px;" placeholder="This ticket has no description, write one" %}
-            <button class="btn btn-primary" type="submit">Submit  </button>
+            <button class="btn btn-primary" type="submit">Submit</button>
           </form>`; 
       }
       else{
@@ -420,10 +433,12 @@ function modalClick(event){
       }
       for(var i = 0; i < data.comment.length; i++){
         if(data.comment[i].image != null || data.comment[i].image != ''){
-          image = `<a href="`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`" class="comment-image"></a>
+          console.log('image not null');
+          image = `<a href="/media/`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`" class="comment-image"></a>
             <hr>`;
         }
-        else if(data.comment[i].file != null || data.comment[i].file != ''){
+        
+        if(data.comment[i].file != null || data.comment[i].file != ''){
           file = `<a href="`+data.comment[i].file+`">`+data.comment[i].file+`</a>`;
         }
 
@@ -453,6 +468,17 @@ function modalClick(event){
             <div class="panel-body">
               <i class="material-icons" style="font-size:20px; margin-: 20px;"">apps</i>
              `+data.name+`
+             <div class="dropdown show" style="display: inline-block;text-align: center;">
+              <a class="edit-list-btn btn" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              </a>
+              <div class="dropdown-menu card-dropdown" aria-labelledby="dropdownMenuLink">
+                <form method="post" action="/main/board/archive/card/`+data.id+`/" class="btn-archive-card">
+                  {% csrf_token %}
+                    <button class="dropdown-item" type="submit">Archive</button>
+                  </form>
+                  <a class="dropdown-item" href="#">Edit</a>
+                </div>
+            </div>
             </div>
           </div>
         <br><br><br>
@@ -491,6 +517,8 @@ function modalClick(event){
           </div>
         </div>
       `);
+
+      $('.btn-archive-card').submit(archiveCard);
       $('.comment').submit(addComment);
       $('.description').submit(writeDescription);
       $('.editCommentBtn').on('click', editComment_form);
@@ -501,6 +529,23 @@ function modalClick(event){
   });
    
 }
+
+function archiveCard(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#ticket-'+data.id).remove();
+      $('.close').trigger('click', closeModalTicket);
+    }
+  });
+
+}
+
 function editDescForm(event){
   event.preventDefault();
   ticket_id = $(this).attr('value');
@@ -508,18 +553,46 @@ function editDescForm(event){
   $('#createDescription').empty();
   $('#createDescription').append(`
     <br>
-      <form method="post" action="/main/board/view/card/description/`+ticket_id+`/" class="description">
+      <form method="post" action="/main/board/view/card/description/`+ticket_id+`/" class="description" style="display: inline;">
         {% csrf_token %}
         {% render_field ticket_desc_form.description class+='form-control' rows='5' placeholder="This ticket has no description, write one" %}
         <button class="btn btn-primary" type="submit">Submit </button>
-        <button class="btn btn-danger" type="button" value="`+ticket_id+`">Cancel</button>
+      </form>
+      
+      <form method="get" action="/main/board/view/card/get/description/`+ticket_id+`/" class="close-edit-desc-form" style="display: inline;">
+        <button class="btn btn-danger" type="submit" value="`+ticket_id+`">Cancel</button>
       </form>
   `);
+
   $('.description').submit(writeDescription);
+  $('.close-edit-desc-form').submit(closeEditDescForm);
 }
+
+function closeEditDescForm(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      $('#createDescription').empty();
+      $('#createDescription').append(`
+          <br>
+          `+data.description+`
+          <hr>
+          <button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit </button>
+        `);
+      $('.edit-description-btn').on('click',editDescForm);
+    }
+
+  });
+}
+
 function closeModalTicket(event){
   $('#insert-modal-ticket').empty();
 }
+
 function addComment(event){
   event.preventDefault();
   var url=$(this).attr('action');
@@ -536,11 +609,11 @@ function addComment(event){
       var image = "";
       var file = "";
 
-      if(data.image != null){ // check if there is a image
+      if(data.image != null || data.image != ''){ // check if there is a image
         image= `<a href="`+data.image+`"><img src="`+data.image+`" class="comment-image"></a><hr>`;
       }
 
-      else if(data.file != null){
+      if(data.file != null || data.file != ''){
         file = `<a href="`+data.file+`">`+data.file+`</a>`;
       }
 
@@ -719,6 +792,21 @@ function searchBoard(event){
   event.stopImmediatePropagation();
 }
 
+function archiveList(event){
+  event.preventDefault();
+  var url=$(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#list-'+data.id).remove();
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
 function changeList(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -734,7 +822,7 @@ function changeList(event){
 }
 
 function close_invites(event){
-   $('.dropdown-menu').removeClass('show');
+   $('#ul-invitations').removeClass('show');
 }
 
 function invite_board(event){
@@ -769,6 +857,253 @@ function invite_board(event){
   });
 }
 
+function unarchiveList(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url: url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      var tickets = "";
+      console.log(data);
+      for(var i = 0; i < data.tickets.length; i++){
+        tickets+=`<li draggable="true" ondragstart="drag(event)" id="ticket-`+data.tickets[i].id+`" class="modal-li-draggable"> 
+                <form method="get" action="/main/board/view/card/`+data.tickets[i].id+`/" value="`+data.tickets[i].id+`" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+                {% csrf_token %}
+                `+data.tickets[i].name+`
+                <button type="submit" hidden="hidden">trigger</button>
+                </form>
+              </li>`;
+      }
+
+      $('.add-list-btn').before(`
+        <div id="list-`+data.id+`" class="list">
+          <h3 class="list-title">
+          `+data.name+`
+            <div class="dropdown show" style="display: inline-block;text-align: center;">
+              <a class="edit-list-btn btn" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              </a>
+              <div class="dropdown-menu list-dropdown" aria-labelledby="dropdownMenuLink">
+                <form method="post" action="/main/board/archive/list/`+data.id+`/" class="btn-archive-list">
+                  {% csrf_token %}
+                    <button class="dropdown-item" type="submit">Archive</button>
+                  </form>
+                  <a class="dropdown-item" href="#">Edit</a>
+                </div>
+            </div>
+          </h3>
+          
+          <ul value="`+data.id+`" id="ul-`+data.id+`" class="list-items">
+              `+tickets+`
+          </ul>
+          <button value="`+data.id+`" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+        </div>
+      `);
+
+      $('#archived-list-'+data.id).remove();
+
+      //events
+
+      $('.add-card-btn').click(add_card_form);
+      $('.btn-archive-list').on('submit', archiveList);
+      $('.ticket-modal').on('click',modalClick);
+      $('.ticket-modal').on('submit',changeList);
+      
+      $('.btn-archive-list').on('submit', archiveList);
+
+      $('.list_form').replaceWith(
+        `<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left:15px;">Add a list</button>`);
+      $('#btn-add-list').on('click',add_list_form);  
+      $('.add-card-btn').click(add_card_form);
+
+      $('.list-items').sortable({
+        connectWith: '.list-items',
+        stop: function(event,ui){
+          console.log($(this).attr('value'));
+        },
+        receive: function(event,ui){
+          var form = $(ui.item[0]).find('form');
+          var orig_action = form.attr('action');
+          var orig_method = form.attr('method');
+          var ticket_id = form.attr('value');
+          var list_id = $(this).attr('value');
+          form.attr('method','post');
+          form.attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
+          form.trigger('submit');
+          form.attr('action', orig_action);
+          form.attr('method', orig_method);
+        },
+        revert: true
+      });
+
+      $('.lists-container').sortable({
+        connectWith: '.lists-container',
+        axis: 'x'
+      });
+      //...events
+
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function deleteList(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#archived-list-'+data.id).remove();
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function unarchiveCard(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log('unarchiveCard');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#ul-'+data.lists).append(`
+        <li draggable="true" ondragstart="drag(event)" id="ticket-`+data.id+`" class="modal-li-draggable"> 
+          <form method="get" action="/main/board/view/card/`+data.id+`/" value="`+data.id+`" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+          {% csrf_token %}
+          `+data.name+`
+          <button type="submit" hidden="hidden">trigger</button>
+          </form>
+        </li>
+      `);
+
+      $('#archived-card-'+data.id).remove();
+
+      //events
+
+      $('.add-card-btn').click(add_card_form);
+      $('.btn-archive-list').on('submit', archiveList);
+      $('.ticket-modal').on('click',modalClick);
+      $('.ticket-modal').on('submit',changeList);
+      
+      $('.btn-archive-list').on('submit', archiveList);
+
+      $('.list_form').replaceWith(
+        `<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left:15px;">Add a list</button>`);
+      $('#btn-add-list').on('click',add_list_form);  
+      $('.add-card-btn').click(add_card_form);
+
+      $('.list-items').sortable({
+        connectWith: '.list-items',
+        stop: function(event,ui){
+          console.log($(this).attr('value'));
+        },
+        receive: function(event,ui){
+          var form = $(ui.item[0]).find('form');
+          var orig_action = form.attr('action');
+          var orig_method = form.attr('method');
+          var ticket_id = form.attr('value');
+          var list_id = $(this).attr('value');
+          form.attr('method','post');
+          form.attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
+          form.trigger('submit');
+          form.attr('action', orig_action);
+          form.attr('method', orig_method);
+        },
+        revert: true
+      });
+
+      $('.lists-container').sortable({
+        connectWith: '.lists-container',
+        axis: 'x'
+      });
+      //...events
+    }
+  });
+  event.stopImmediatePropagation();  
+}
+
+function deleteCard(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#archived-card-'+data.id).remove();
+    }
+  });
+}
+
+function archivedItems(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#tab-archive-list').empty();
+      $('#tab-archive-list').append(`
+        <h1 class="login-forms"> Lists </h1>
+      `);
+      
+      for(var i = 0; i < data.archived_lists.length; i++){
+        $('#tab-archive-list').append(`
+          <div class="alert alert-primary" id="archived-list-`+data.archived_lists[i].id+`">
+            <h1 class="login-forms">
+              `+data.archived_lists[i].name+`
+            </h1>
+            <form method="post" action="/main/board/unarchive/list/`+data.archived_lists[i].id+`/" class="unarchive-list-btn" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-primary" style="display; inline;" type="submit">Send to board</button>
+            </form>
+            
+            <form method="post" action="/main/board/delete/list/`+data.archived_lists[i].id+`/" class="delete-list-btn" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-danger" style="display; inline;">Delete</button>
+            </form>
+          </div>
+        `);
+      }
+
+      for(var i = 0; i < data.archived_cards.length; i++){
+        $('#tab-archive-card').append(`
+
+          <div class="alert alert-primary" id="archived-card-`+data.archived_cards[i].id+`">
+            <h1 class="login-forms">
+              `+data.archived_cards[i].name+`
+            </h1>
+            <form method="post" action="/main/board/unarchive/card/`+data.archived_cards[i].id+`/" class="unarchive-card-btn" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-primary" style="display; inline;" type="submit">Send to board</button>
+            </form>
+            
+            <form method="post" action="/main/board/delete/card/`+data.archived_cards[i].id+`/" class="delete-card-btn" style="display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-danger" style="display; inline;">Delete</button>
+            </form>
+          </div>
+        `);
+      }
+      $('.unarchive-card-btn').submit(unarchiveCard);
+      $('.delete-card-btn').submit(deleteCard);
+      $('.unarchive-list-btn').submit(unarchiveList);
+      $('.delete-list-btn').submit(deleteList);
+    }
+  })
+}
+
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
@@ -781,6 +1116,7 @@ $('.list-items').sortable({
     var orig_method = form.attr('method');
     var ticket_id = form.attr('value');
     var list_id = $(this).attr('value');
+
     form.attr('method','post');
     form.attr('action','/main/board/card/change/'+ticket_id+'/'+list_id+'/');
     form.trigger('submit');
@@ -793,10 +1129,15 @@ $('.list-items').sortable({
 $('.lists-container').sortable({
   connectWith: '.lists-container',
   axis: 'x'
-  // cancel: '.add-list-btn'
 });
 
-
+$('.show-menu').on('click', function(){
+  console.log('show menu');
+  $('.show-menu-btn').trigger('submit');
+})
+// $('#nav-archive-list-tab').on('click', archivedLists);
+$('.show-menu-btn').on('submit', archivedItems);
+$('.btn-archive-list').on('submit', archiveList);
 $('.btn-close-invitations').on('click', close_invites);
 $('.invitations').on('submit', invite_board);
 $('#invite-user-btn').on('click',invite_form);

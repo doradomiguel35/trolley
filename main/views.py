@@ -11,6 +11,22 @@ from django.http import JsonResponse
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
     CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer)
 
+""" LIST OF CLASSES
+TeamView
+MainView
+BoardView
+ListView
+TicketView
+UpdateDescTicketView
+CommentView
+EditComment
+SearchBoardView
+DeleteComment
+CloseBoardView
+SearchBoardView
+
+"""
+
 
 class TeamView(TemplateView):
     """
@@ -77,8 +93,8 @@ class BoardView(TemplateView):
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
         team = self.request.user.teams.all()
-        lists = List.objects.filter(board_id=board.id)
-        tickets = Ticket.objects.filter(lists_id__in=lists)
+        lists = List.objects.filter(board_id=board.id,archived=False)
+        tickets = Ticket.objects.filter(lists_id__in=lists,archived=False)
 
 
         return render(self.request, 'board/board.html',
@@ -158,7 +174,7 @@ class TicketView(View):
     """
 
     def get(self, *args, **kwargs):
-        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'),archived=False)
         comments = Comment.objects.filter(
             ticket_id=kwargs.get('ticket_id')).values('id','user_id','user__first_name','user__last_name','comment','ticket_id','image','file')
         try:
@@ -186,6 +202,12 @@ class UpdateDescTicketView(View):
     """
     update description of the ticket ticket
     """
+
+    def get(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        serialize = TicketDescSerializer(ticket).data
+
+        return JsonResponse(serialize, safe=False)
 
     def post(self, *args, **kwargs):
         ticket_desc_form = TicketDescForms(self.request.POST)
@@ -391,3 +413,108 @@ class LeaveBoardView(View):
         board.save()    
 
         return HttpResponseRedirect(reverse('main:home', kwargs={'id': self.request.user.id}))
+
+
+class ArchiveListView(View):
+    """
+    Archive a list
+    """
+
+    def post(self, *args, **kwargs):
+        lists = List.objects.get(id=kwargs.get('list_id'))
+        lists.archived = True
+        lists.save()
+
+        serializer = ListSerializer(lists).data
+        return JsonResponse(serializer, safe=False)
+
+
+class ArchiveTicketView(View):
+    """
+    Archive a Ticket
+    """
+
+    def post(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket.archived = True
+        ticket.save()
+
+        serializer = TicketSerializer(ticket).data
+        return JsonResponse(serializer, safe=False)
+
+
+class ArchivedItemsView(View):
+    """
+    Retrieve archived items
+    """
+
+    def get(self, *args, **kwargs):
+        board = Board.objects.get(id=kwargs.get('board_id'))
+        lists = List.objects.filter(board_id=kwargs.get('board_id'))
+        archived_lists = List.objects.filter(board_id=kwargs.get('board_id'), archived=True).values()
+        archived_tickets = Ticket.objects.filter(lists_id__in=lists, archived=True).values()
+        
+        serializer = {
+            'archived_lists': list(archived_lists),
+            'archived_cards': list(archived_tickets)
+        }
+
+        return JsonResponse(serializer, safe=False)
+
+
+class UnarchiveListView(View):
+    """
+    Unarchive a list
+    """
+    def post(self, *args, **kwargs):
+        lists = List.objects.get(id=kwargs.get('list_id'))
+        lists.archived = False
+        lists.save()
+        ticket = Ticket.objects.filter(lists_id = lists.id).values('id','name', 'description', 'lists_id')
+
+        serializer = ListSerializer(lists).data
+        serializer['tickets'] = list(ticket)
+        return JsonResponse(serializer, safe=False)
+
+
+class UnarchiveTicketView(View):
+    """
+    Unarchive a ticket
+    """
+    def post(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket.archived = False
+        ticket.save()
+
+        serializer = TicketSerializer(ticket).data
+        return JsonResponse(serializer, safe=False)
+
+
+class DeleteListView(View):
+    """
+    Delete a list
+    """
+    def post(self, *args, **kwargs):
+        lists = List.objects.get(id=kwargs.get('list_id'))
+        serializer = ListSerializer(lists).data
+        lists.delete()
+
+        return JsonResponse(serializer, safe=False)
+
+
+class DeleteCardView(View):
+    """
+    Delete a card
+    """
+    def post(self, *args, **kwargs):
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        serializer = TicketSerializer(ticket).data
+        ticket.delete()
+
+        return JsonResponse(serializer, safe=False)
+
+
+
+
+
+
