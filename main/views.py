@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Board, Team, List, Ticket, Comment, InviteToBoard
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard, ActivityLog
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
     TicketDescForms, EditCommentForms, SearchForm, InviteUserBoardForm)
 from django.http import HttpResponseRedirect
@@ -191,8 +191,13 @@ class TicketView(View):
         if ticket_form.is_valid():
             ticket = Ticket(name=ticket_form.cleaned_data['name'],
                 lists_id=kwargs.get('list_id'))
+            lists = List.objects.get(id=kwargs.get('list_id'))
             ticket.save()
+            
+            msg = self.request.user.first_name+" "+self.request.user.last_name+" added "+ticket.name+" to "+lists.name
 
+            activity = ActivityLog(activity=msg,board_id=lists.board_id)
+            activity.save()
             serialize = TicketCreationSerializer(ticket)
 
             return JsonResponse(serialize.data, safe=False)
@@ -271,7 +276,6 @@ class SearchBoardView(View):
     """
     Search board view
     """
-
     def get(self, *args, **kwargs):
         search_form = SearchForm(self.request.GET)
         if search_form.is_valid():
@@ -314,6 +318,13 @@ class UpdateCardListView(View):
 
     def post(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        lists = List.objects.get(id=ticket.lists_id)
+        list_current = List.objects.get(id=kwargs.get('lists_id'))
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" moved "+ticket.name+" from "+lists.name+" to "+list_current.name
+
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
+
         ticket.lists_id = kwargs.get('lists_id')
         ticket.save()
 
@@ -330,8 +341,11 @@ class InviteToBoardView(View):
         invite_email = InviteUserBoardForm(self.request.POST)
 
         if invite_email.is_valid():
-            user = User.objects.get(email=invite_email.cleaned_data['email'])
-            
+            try:
+                user = User.objects.get(email=invite_email.cleaned_data['email'])
+            except:
+                return JsonResponse({'error': 'email doesn not exist'}, safe=False)
+
             try:
                 invite = InviteToBoard.objects.get(user_id=user.id,
                     board_id=kwargs.get('board_id'))   
@@ -340,6 +354,10 @@ class InviteToBoardView(View):
                     board_id=kwargs.get('board_id'),invited_by_id=self.request.user.id)
                 invite.save()
 
+            msg = self.request.user.first_name+" "+self.request.user.last_name+" invited "+user.first_name+" "+user.last_name+" to the board"
+
+            activity = ActivityLog(activity=msg,board_id=kwargs.get('board_id'))
+            activity.save()
             serializer = InviteBoardSerializer(invite).data
             serializer['email'] = user.email
             return JsonResponse(serializer, safe=False)
@@ -358,6 +376,10 @@ class ConfirmInviteBoard(View):
         board = Board.objects.get(id=invite.board.id)
         board.member.add(invite.user)
         board.save()
+
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" has joined the board "
+        activity = ActivityLog(activity=msg,board_id=board.id)
+        activity.save()
 
         serializer = BoardSerializer(board).data
         return JsonResponse(serializer, safe=False)
@@ -410,6 +432,10 @@ class LeaveBoardView(View):
         invite.delete()
         board = Board.objects.get(id=kwargs.get('board_id'))
         board.member.remove(self.request.user)
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" left the board"
+
+        activity = ActivityLog(activity=msg,board_id=board.id)
+        activity.save()
         board.save()    
 
         return HttpResponseRedirect(reverse('main:home', kwargs={'id': self.request.user.id}))
@@ -423,6 +449,10 @@ class ArchiveListView(View):
     def post(self, *args, **kwargs):
         lists = List.objects.get(id=kwargs.get('list_id'))
         lists.archived = True
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" archived "+lists.name+"(list)"
+
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
         lists.save()
 
         serializer = ListSerializer(lists).data
@@ -436,7 +466,12 @@ class ArchiveTicketView(View):
 
     def post(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        lists = List.objects.get(id=ticket.lists_id)
         ticket.archived = True
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" archived "+ticket.name+"(card)"
+
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
         ticket.save()
 
         serializer = TicketSerializer(ticket).data
@@ -453,10 +488,13 @@ class ArchivedItemsView(View):
         lists = List.objects.filter(board_id=kwargs.get('board_id'))
         archived_lists = List.objects.filter(board_id=kwargs.get('board_id'), archived=True).values()
         archived_tickets = Ticket.objects.filter(lists_id__in=lists, archived=True).values()
-        
+        activities = ActivityLog.objects.filter(
+            board_id=kwargs.get('board_id')).order_by('-date_created').values('id','activity','board_id','date_created')
+
         serializer = {
             'archived_lists': list(archived_lists),
-            'archived_cards': list(archived_tickets)
+            'archived_cards': list(archived_tickets),
+            'activities': list(activities)
         }
 
         return JsonResponse(serializer, safe=False)
@@ -469,6 +507,10 @@ class UnarchiveListView(View):
     def post(self, *args, **kwargs):
         lists = List.objects.get(id=kwargs.get('list_id'))
         lists.archived = False
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" unarchived "+lists.name+"(list)"
+
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
         lists.save()
         ticket = Ticket.objects.filter(lists_id = lists.id).values('id','name', 'description', 'lists_id')
 
@@ -484,6 +526,11 @@ class UnarchiveTicketView(View):
     def post(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
         ticket.archived = False
+        lists = List.objects.get(id=ticket.lists_id)
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" unarchived "+ticket.name+"(card)"
+
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
         ticket.save()
 
         serializer = TicketSerializer(ticket).data
@@ -512,9 +559,3 @@ class DeleteCardView(View):
         ticket.delete()
 
         return JsonResponse(serializer, safe=False)
-
-
-
-
-
-

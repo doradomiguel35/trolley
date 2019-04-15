@@ -17,8 +17,9 @@
 
 body{
   width: 1850px;
-  min-height: 900px;
+  height: 800px;
   overflow-x:hidden;
+  overflow-y:hidden;
 }
 
 .logo-font{

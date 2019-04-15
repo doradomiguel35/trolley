@@ -1054,6 +1054,8 @@ function archivedItems(event){
     success: function(data){
       console.log(data);
       $('#tab-archive-list').empty();
+      $('#tab-archive-card').empty();
+      $('#tab-activities').empty();
       $('#tab-archive-list').append(`
         <h1 class="login-forms"> Lists </h1>
       `);
@@ -1093,6 +1095,19 @@ function archivedItems(event){
               {% csrf_token %}
               <button class="btn btn-danger" style="display; inline;">Delete</button>
             </form>
+          </div>
+        `);
+      }
+
+      for(var i =0; i < data.activities.length; i++){
+        $('#tab-activities').append(`
+          <div class="alert alert-primary" id="activity-`+data.activities[i].id+`">
+            <h1 class="login-forms" style="font-size:20px;">
+              `+data.activities[i].activity+`
+            </h1>
+            <h1 class="login-forms" style="font-size: 12px;">
+              `+data.activities[i].date_created+`
+            </h1>
           </div>
         `);
       }
