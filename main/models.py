@@ -100,14 +100,21 @@ class InviteToBoard(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
-class Activities(models.Model):
+class ActivityLog(models.Model):
     """
     Activity log
     """
-    board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
-    activity = models.CharField(max_length=250)
+    acitivity = models.CharField(max_length=250)
+    prev_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="prev_list")
+    curr_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="current_list")
+    ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="ticket")
+    new_ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="new_ticket")
+    new_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="new_list")
+    archive_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="archive_list")
+    archive_ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="archive_ticket")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
 
 
