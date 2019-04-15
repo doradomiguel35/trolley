@@ -21,38 +21,100 @@
 			<button type="submit" class="btn btn-danger">Leave Board</button>
 		</form>
 		{% endif %}
+		
+		<form method="get" action="{% url 'main:archived_items' board.id %}" style="display: inline;" class="show-menu-btn" data-target="#boardModal" data-toggle="modal">
+			<button class="show-menu btn" type="button"> ...Show Menu </button>
+		</form>
 	</div>
 	
 	<section class="lists-container">
 
 		{% for list in lists %}
-	<div id="list-{{ list.id }}" class="list">
-		
-		<h3 class="list-title">
-			{{ list.name }}
-			<button id="btn-edit-name-list" class="edit-list-btn btn" style="display: inline;text-align: center;" ></button>	
-		</h3>
-		
-		<ul value="{{ list.id }}" id="ul-{{ list.id }}" class="list-items">
-			{% for ticket in tickets %}
-				{% if ticket.lists_id == list.id %}
-				<li draggable="true" ondragstart="drag(event)" id="{{ticket.id}}" class="modal-li-draggable"> 
-					<form method="get" action="{% url 'main:ticket_view' ticket.id %}" value="{{ticket.id}}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
-					{% csrf_token %}
-					{{ ticket.name }}
-					<button type="submit" hidden="hidden">trigger</button>
-					</form>
-				</li>
-				{% endif %}
-			{% endfor %}
-		</ul>
-		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
-	</div>
+    	<div id="list-{{ list.id }}" class="list">
+    		
+    		<h3 class="list-title">
+    			{{ list.name }}
+    			<div class="dropdown show" style="display: inline-block;text-align: center;">
+    			  <a class="edit-list-btn btn" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    			  </a>
+    				<div class="dropdown-menu list-dropdown" aria-labelledby="dropdownMenuLink">
+    					<form method="post" action="{% url 'main:archive_list' list.id %}" class="btn-archive-list">
+    						{% csrf_token %}
+    				    	<button class="dropdown-item" type="submit">Archive</button>
+    				    </form>
+    				    <a class="dropdown-item" href="#">Edit</a>
+    			  	</div>
+    			</div>
+    		</h3>
+    		
+    		<ul value="{{ list.id }}" id="ul-{{ list.id }}" class="list-items">
+    			{% for ticket in tickets %}
+    				{% if ticket.lists_id == list.id %}
+    				<li draggable="true" ondragstart="drag(event)" id="ticket-{{ticket.id}}" class="modal-li-draggable"> 
+    					<form method="get" action="{% url 'main:ticket_view' ticket.id %}" value="{{ticket.id}}" class="ticket-modal" data-toggle="modal" data-target="#ticketModal">
+    					{% csrf_token %}
+    					{{ ticket.name }}
+    					<button type="submit" hidden="hidden">trigger</button>
+    					</form>
+    				</li>
+    				{% endif %}
+    			{% endfor %}
+    		</ul>
+    		<button value="{{list.id}}" id="btn-add-card" class="add-card-btn btn">Add a card</button>
+    	</div>
 	{% endfor %}
 	<span id="inserted-list"></span>
 	<span id="insert-list" style="margin-left:15px;"></span>
 	<button id="btn-add-list" class="add-list-btn btn" type="submit" style="margin-left: 15px;">Add a list</button>
 	</section>
+
+	<div id="boardModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" >
+          <div class="modal-header">
+            <h1 class="login-forms">
+              Menu
+            </h1>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body" id="ticket-modal-body">
+            <div id="board-modal-ticket" class="container">
+             <div class="nav nav-tabs" id="nav-tab-menu" role="tablist">
+                <button class="nav-item nav-link active" id="nav-archive-tab" data-toggle="tab" data-target="#tab-archive" role="tab" aria-controls="tab-archive" aria-selected="true">Archived items</button>
+                <button class="nav-item nav-link" id="nav-activities-tab" data-toggle="tab" data-target="#tab-activities" role="tab" aria-controls="tab-activities" aria-selected="false">Activities</button>
+            </div>
+
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="tab-archive" role="tabpanel" aria-labelledby="nav-archive-tab">
+                    <div class="nav nav-tabs" id="tab-archive" role="tablist">
+                        <hr>	
+                        <button class="nav-item nav-link active" id="nav-archive-list-tab" data-toggle="tab" data-target="#tab-archive-list" role="tab" aria-controls="tab-archive-list" aria-selected="true">Archived Lists</button>
+                        <button class="nav-item nav-link" id="nav-archive-card-tab" data-toggle="tab" data-target="#tab-archive-card" role="tab" aria-controls="tab-archive-card" aria-selected="true">Archived Cards</button>
+                    </div>
+
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="tab-archive-list" role="tabpanel" aria-labelledby="nav-archive-list-tab">
+                            <div class="nav nav-tabs" id="tab-archive-list" role="tablist">
+                                
+                            	<!-- archived lists -->
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade show" id="tab-archive-card" role="tabpanel" aria-labelledby="nav-archive-card-tab">
+                            <div class="nav nav-tabs" id="tab-archive-card" role="tablist">
+                                <h1 class="login-forms"> Cards </h1>
+                            	<!-- archived cards -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="tab-activities" id="tab-activities" role="tabpanel" aria-labelledby="nav-activities-tab"></div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 	
 </body>
 {% endblock content %}

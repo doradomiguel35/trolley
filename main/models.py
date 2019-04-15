@@ -55,6 +55,7 @@ class Ticket(models.Model):
     description = models.CharField(max_length=300, default="", blank=True, null=True)
     assigned = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
     lists = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True)
+    archived = models.BooleanField(default=False)
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -80,6 +81,7 @@ class List(models.Model):
     """
     name = models.CharField(max_length=100)
     board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
+    archived = models.BooleanField(default=False)
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -98,5 +100,14 @@ class InviteToBoard(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
+class Activities(models.Model):
+    """
+    Activity log
+    """
+    board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
+    activity = models.CharField(max_length=250)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
 

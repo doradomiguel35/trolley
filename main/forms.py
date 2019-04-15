@@ -61,7 +61,7 @@ class TicketDescForms(forms.ModelForm):
     """
     Ticket description
     """
-    description = forms.CharField(widget=forms.Textarea, required=False)
+    description = forms.CharField(widget=forms.Textarea, required=True)
 
     class Meta:
         model = Ticket
