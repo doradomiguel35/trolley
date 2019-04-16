@@ -10,6 +10,7 @@ from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
     CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer)
+from users.serializers import UserSerializer
 
 """ LIST OF CLASSES
 TeamView
@@ -175,16 +176,17 @@ class TicketView(View):
 
     def get(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'),archived=False)
-        comments = Comment.objects.filter(
-            ticket_id=kwargs.get('ticket_id')).values('id','user_id','user__first_name','user__last_name','comment','ticket_id','image','file')
-        try:
-            serialize = TicketSerializer(ticket).data
-            serialize['comment']= list(comments)
-            return JsonResponse(serialize, safe=False)
+        comments = Comment.objects.filter(ticket_id=kwargs.get('ticket_id')
+            ).values('id','user_id','user__first_name','user__last_name','comment','ticket_id','image','file')
+        
+        serialize = TicketSerializer(ticket).data
+        serialize['comment']= list(comments)
+        serialize['members'] = list(ticket.assigned.all().values())
+        serialize['board_id'] = ticket.lists.board_id
+        serialize['assigned'] = list(ticket.assigned.all().values())
 
-        except:
-            serialize = TicketSerializer(ticket).data
-            return JsonResponse(serialize, safe=False)
+        return JsonResponse(serialize, safe=False)
+
 
     def post(self, *args, **kwargs):
         ticket_form = TicketCreationForms(self.request.POST)
@@ -557,5 +559,62 @@ class DeleteCardView(View):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
         serializer = TicketSerializer(ticket).data
         ticket.delete()
+
+        return JsonResponse(serializer, safe=False)
+
+
+class AssignMemberView(View):
+    """
+    Assign member to a card 
+    """
+
+    def get(self, *args, **kwargs):
+        """get members of the board
+        """
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+
+        assigned = ticket.assigned.all()
+        unassigned = Board.objects.get(
+            id=ticket.lists.board_id).member.exclude(id__in=assigned).values()
+
+        serializer = TicketSerializer(ticket).data
+        serializer['board_id'] = ticket.lists.board_id
+        serializer['unassigned'] = list(unassigned)
+        serializer['assigned'] = list(assigned.values())
+        serializer['members'] = list(ticket.lists.board.member.all().values('id','first_name','last_name','email'))
+
+        return JsonResponse(serializer, safe=False)
+
+
+    def post(self, *args, **kwargs):
+        user = User.objects.get(id=kwargs.get('user_id'))
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket.assigned.add(user)
+        ticket.save()
+
+        serializer = TicketSerializer(ticket).data
+        serializer['assigned'] = list(ticket.assigned.all().values())
+        serializer['user'] = UserSerializer(user).data
+
+        return JsonResponse(serializer, safe=False)
+
+
+class UnassignMemberView(View):
+    """
+    Unassign a member in a card
+    """
+
+    def post(self, *args, **kwargs):
+        user = User.objects.get(id=kwargs.get('user_id'))
+        ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+        ticket.assigned.remove(user)
+        ticket.save()
+
+        unassigned = Board.objects.get(
+            id=ticket.lists.board_id).member.exclude(id__in=ticket.assigned.all()).values()
+
+        serializer = TicketSerializer(ticket).data
+        serializer['unassigned'] = list(unassigned)
+        serializer['user'] = UserSerializer(user).data
 
         return JsonResponse(serializer, safe=False)

@@ -53,7 +53,7 @@ class Ticket(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, default="", blank=True, null=True)
-    assigned = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    assigned = models.ManyToManyField('users.User', blank=True)
     lists = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True)
     archived = models.BooleanField(default=False)
 
@@ -106,13 +106,6 @@ class ActivityLog(models.Model):
     """
     activity = models.CharField(max_length=250)
     board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
-    # prev_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="prev_list")
-    # curr_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="current_list")
-    # ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="ticket")
-    # new_ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="new_ticket")
-    # new_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="new_list")
-    # archive_list = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True, related_name="archive_list")
-    # archive_ticket = models.ForeignKey('main.Ticket', on_delete=models.SET_NULL, null=True, related_name="archive_ticket")
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
