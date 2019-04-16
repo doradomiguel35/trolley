@@ -439,7 +439,10 @@ function modalClick(event){
       var description = '';
       var file = '';
       var image = '';
+      var status = '';
       console.log(data);
+
+      //DESCRIPTION
       if(data.description === ''){
         description = `
           <br>
@@ -452,6 +455,8 @@ function modalClick(event){
       else{
         description = data.description+`<hr><button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit </button>`;
       }
+
+      //COMMENTS SECTION
       for(var i = 0; i < data.comment.length; i++){
         if(data.comment[i].image != ""){
           console.log('image not null');
@@ -483,6 +488,8 @@ function modalClick(event){
           </div>
             <hr>`;
       }
+
+      //ACTUAL MODAL
       $('#insert-modal-ticket').empty();
       $('#insert-modal-ticket').append(`
          <div class="panel panel-default">
@@ -527,9 +534,10 @@ function modalClick(event){
                 Checklist
               </div>
               <h1 class="login-forms" style="font-size:14px;">
-                <button class="btn btn-primary" style="margin-top:20px;">
+                <button class="btn btn-primary" style="margin-top:20px;" value="`+data.id+`" id="add-checklist-form-btn">
                   <i class="material-icons" style="font-size:20px; margin-: 20px;">add</i>
                 </button>
+                <div id="insert-checklist"></div>
               </h1>
             </div>
           </div>
@@ -570,6 +578,58 @@ function modalClick(event){
           </div>
         `);
 
+      for(var i = 0; i < data.progress.length; i++){
+        $('#insert-checklist').after(`
+          <div id="checklist-`+data.progress[i].id+`" style="margin-top:10px;margin-bottom:50px;">
+            <h1 class="login-forms" style="font-size: 25px;">
+              <div style="display:inline;">
+                `+data.progress[i].title+`
+                <form method="post" action="/main/board/view/card/delete/progress/`+data.progress[i].id+`/" class="delete-checklist-btn" style="float:right; display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-danger" type="submit">X</button>
+                </form>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="progressbar-`+data.progress[i].id+`" role="progressbar" style="width: `+data.progress[i].progress+`%" aria-valuenow="`+data.progress[i].progress+`" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <button class="btn btn-primary item-form-btn" type="button" value="`+data.progress[i].id+`" style="margin-top:10px;">Add Item</button>
+              <div id="item-form-`+data.progress[i].id+`"></div>
+              <div id="items-`+data.progress[i].id+`"></div>
+          </div
+        `);
+      }
+
+      for(var i = 0; i < data.checklist.length; i++){
+        if(data.checklist[i].done === true){
+          status = `<form action="/main/board/view/card/progress/checklist/undone/`+data.checklist[i].id+`/" method="post" class="list-undone-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit" style="float:right;">Undone</button>
+          </form>`;
+        }
+        else{
+          status = `<form action="/main/board/view/card/progress/checklist/done/`+data.checklist[i].id+`/" method="post" class="list-done-btn" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
+              </form>`;
+        }
+
+        $('#items-'+data.checklist[i].progress_id).append(`
+          <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
+          <h1 class="login-forms" style="font-size: 20px;">
+            <div id="item-status-`+data.checklist[i].id+`" style="display:inline; ">
+              `+data.checklist[i].name+`
+              `+status+`
+            </div>
+          </h1>
+        </div>
+        `);
+      }
+
+      $('.delete-checklist-btn').on('submit', delete_checklist);
+      $('.list-undone-btn').on('submit', item_undone);
+      $('.list-done-btn').on('submit',item_done);
+      $('.item-form-btn').on('click', add_item_form);
+      $('#add-checklist-form-btn').on('click', add_checklist_form);
       $('.assign-members-dropdown').on('submit', assignMembersList);
       $('.btn-archive-card').submit(archiveCard);
       $('.comment').submit(addComment);
@@ -582,6 +642,177 @@ function modalClick(event){
   });
    
 }
+
+function delete_checklist(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#checklist-'+data.id).remove();
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function close_item_form(event){
+  var progress_id = $(this).attr('value');
+  $('#item-form-'+progress_id).empty();
+}
+
+function add_item_form(event){
+  var progress_id = $(this).attr('value');
+  $('#item-form-'+progress_id).append(`
+    <form method="post" action="/main/board/view/card/create/checklist/`+progress_id+`/" class="create-item-btn">
+      {% csrf_token %}
+      {% render_field checklist_form.name class+="form-control" placeholder="Add an item" style="margin-top:10px;margin-bottom:10px;" %}
+      <button class="btn btn-primary" style="display:inline;" type="submit">Add</button>
+      <button class="btn btn-danger close-item-form-btn" value="`+progress_id+`" style="display:inline;" type="button">Cancel</button
+    </form>
+  `);
+
+  $('.close-item-form-btn').on('click',close_item_form);
+  $('.create-item-btn').on('submit',add_item);
+}
+
+function add_item(event){
+  event.preventDefault()
+  var url = $(this).attr('action');
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#items-'+data.progress.id).append(`
+        <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
+          <h1 class="login-forms" style="font-size: 20px;">
+            <div id="item-status-`+data.id+`" style="display:inline;">
+              `+data.name+`
+              <form action="/main/board/view/card/progress/checklist/done/`+data.id+`/" method="post" class="list-done-btn" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
+              </form>
+            </div>
+          </h1>
+        </div>
+      `);
+      $('#progressbar-'+data.progress.id).attr('style','width: '+data.progress.progress+'%')
+      $('#progressbar-'+data.progress.id).attr('aria-valuenow', data.progress.progress)
+
+      $('.list-done-btn').on('submit',item_done);
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function item_undone(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#item-status-'+data.item.id).empty();
+      $('#item-status-'+data.item.id).append(`
+          `+data.item.name+`<form action="/main/board/view/card/progress/checklist/done/`+data.item.id+`/" method="post" class="list-done-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
+          </form>
+      `);
+
+      $('#progressbar-'+data.id).attr('style','width: '+data.progress+'%')
+      $('#progressbar-'+data.id).attr('aria-valuenow', data.progress)
+      
+      $('.list-done-btn').on('submit',item_done);
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function item_done(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#item-status-'+data.item.id).empty();
+      $('#item-status-'+data.item.id).append(`
+          `+data.item.name+`<form action="/main/board/view/card/progress/checklist/undone/`+data.item.id+`/" method="post" class="list-undone-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit" style="float:right;">Undone</button>
+          </form>
+      `);
+
+      $('#progressbar-'+data.id).attr('style','width: '+data.progress+'%');
+      $('#progressbar-'+data.id).attr('aria-valuenow', data.progress);
+
+      $('.list-undone-btn').on('submit', item_undone);
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function add_checklist(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url: url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#insert-checklist').empty();
+      $('#insert-checklist').after(`  
+        <div id="checklist-`+data.id+`" style="margin-top:10px;">
+          <h1 class="login-forms" style="font-size: 25px;">
+            `+data.title+` 
+            <form method="post" action="/main/board/view/card/delete/progress/`+data.id+`/" class="delete-checklist-btn" style="float:right; display:inline;">
+              {% csrf_token %}
+              <button class="btn btn-danger" type="submit">X</button>
+            </form>
+            <div class="progress">
+              <div class="progress-bar" id="progressbar-`+data.id+`" role="progressbar" aria-valuenow="`+data.progress+`" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <button class="btn btn-primary item-form-btn" type="button" value="`+data.id+`" style="margin-top:10px;">Add Item</button>
+            <div id="item-form-`+data.id+`"></div>
+            <div id="items-`+data.id+`"></div>
+        </div
+      `);
+
+      $('.item-form-btn').on('click',add_item_form);
+      $('.delete-checklist-btn').on('submit', delete_checklist);
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
+function add_checklist_form(event){
+  var ticket_id = $(this).attr('value');
+  $('#insert-checklist').empty();
+  $('#insert-checklist').append(`
+      <form method="post" action="/main/board/view/card/create/progress/`+ticket_id+`/" class="create-progress-btn">
+        {% csrf_token %}
+        {% render_field progress_form.title class+="form-control" placeholder="Add a checklist" style="margin-top:10px;margin-bottom:10px;"%}
+        <button class="btn btn-primary" style="display:inline;" type="submit">Add</button>
+        <button class="btn btn-danger" id="close-checklist-btn" style="display:inline;" type="button">Cancel</button
+      </form>
+  `);
+  $('.create-progress-btn').on('submit', add_checklist);
+  $('#close-checklist-btn').on('click', close_checklist_form);
+}
+
+
 
 function invite_board(event){
   event.preventDefault();
@@ -1306,6 +1537,29 @@ function archivedItems(event){
   })
 }
 
+function add_checklist_form(event){
+  var ticket_id = $(this).attr('value');
+  $('#insert-checklist').empty();
+  $('#insert-checklist').append(`
+    <div >
+      <form method="post" action="/main/board/view/card/create/progress/`+ticket_id+`/" class="create-progress-btn">
+        {% csrf_token %}
+        {% render_field progress_form.title class+="form-control" placeholder="Add a checklist" style="margin-top:10px;margin-bottom:10px;"%}
+        <button class="btn btn-primary" style="display:inline;" type="submit">Add</button>
+        <button class="btn btn-danger" id="close-checklist-btn" style="display:inline;" type="button">Cancel</button
+      </form>
+    </div>
+  `);
+  $('.create-progress-btn').on('submit', add_checklist);
+  $('#close-checklist-btn').on('click', close_checklist_form);
+}
+
+function close_checklist_form(event){
+  $('#insert-checklist').empty();
+
+}
+
+
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
@@ -1336,7 +1590,9 @@ $('.lists-container').sortable({
 $('.show-menu').on('click', function(){
   console.log('show menu');
   $('.show-menu-btn').trigger('submit');
-})
+});
+
+
 
 $('.assign-members-dropdown').on('submit', assignMembersList);
 $('.show-menu-btn').on('submit', archivedItems);

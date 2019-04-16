@@ -1,5 +1,5 @@
 from django import forms
-from .models import Board, Team, List, Ticket, Comment, InviteToBoard
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard, Progress, Checklist
 from users.models import User
 
 
@@ -109,4 +109,23 @@ class InviteUserBoardForm(forms.Form):
     """
     email = forms.EmailField()
     
+
+class ProgressForm(forms.ModelForm):
+    """
+    Progress Form
+    """
+
+    class Meta:
+        model = Progress
+        fields = ('title',)
+
+
+class ChecklistForm(forms.ModelForm):
+    """
+    Checklist form
+    """
+
+    class Meta:
+        model = Checklist
+        fields = ('name',)
 

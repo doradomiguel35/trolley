@@ -1,4 +1,4 @@
-from .models import Board, Team, List, Ticket, Comment, InviteToBoard
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard, Progress, Checklist
 from rest_framework import serializers
 
 
@@ -89,3 +89,20 @@ class InviteBoardSerializer(serializers.ModelSerializer):
 		model = InviteToBoard
 		fields = ('id','confirmed','board','invited_by')
 		
+
+class ProgressSerializer(serializers.ModelSerializer):
+	"""
+	progress title and progress bar value
+	"""
+	class Meta:
+		model = Progress
+		fields = ('id','title','progress','ticket')
+
+
+class ChecklistSerializer(serializers.ModelSerializer):
+	"""
+	checklist serializer 
+	"""
+	class Meta:
+		model = Checklist
+		fields = ('id','name','progress','done')
