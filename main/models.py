@@ -111,4 +111,27 @@ class ActivityLog(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
+class Progress(models.Model):
+    """
+    Progress
+    """
+    title = models.CharField(max_length=100)
+    progress = models.IntegerField()
+    lists = models.ForeignKey('main.List', on_delete=models.CASCADE)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
+class Checklist(models.Model):
+    """
+    Checklist for cards
+    """
+    name = models.CharField(max_length=100)
+    progress = models.ForeignKey('main.Progress', on_delete=models.CASCADE)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
 

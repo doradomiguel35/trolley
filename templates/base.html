@@ -519,42 +519,56 @@ function modalClick(event){
                 </h1>
             </div>
           </div>
-        <br><br><br>
-        <div class="panel panel-default">
-          <div class="panel-body">
-          <i class="material-icons" style="font-size:20px">description</i>
-          Description
-          <hr>
-          <h1 id="createDescription" class="login-forms" style="font-size: 16px;">`+description+`</h1>
+          <br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;">check_box</i>
+              <div style="display:inline;">
+                Checklist
+              </div>
+              <h1 class="login-forms" style="font-size:14px;">
+                <button class="btn btn-primary" style="margin-top:20px;">
+                  <i class="material-icons" style="font-size:20px; margin-: 20px;">add</i>
+                </button>
+              </h1>
+            </div>
           </div>
-        </div><br><br>
-        <div class="panel panel-default">
-          <div class="panel-body">  
-            <i class="material-icons" style="font-size:20px">insert_comment</i>
-            Add a comment 
-            <br><br>
-            <h1 class="login-forms">
-            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
-              {% csrf_token %}
-                {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" style="margin-bottom:10px" %}
-                  <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
-                {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
-                    <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
-                {{ comment_form.image|add_class:"btn btn-success"|attr:"style:width:205px;" }}
-                <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
-            </form>
-          </h1>
-          </div>
-        </div><br><br>
-        <div class="panel panel-default">
-          <div id="comment_section" class="panel-body">
-            <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
-            Activity
+          <br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+            <i class="material-icons" style="font-size:20px">description</i>
+            Description
             <hr>
-            `+comments+`
+            <h1 id="createDescription" class="login-forms" style="font-size: 16px;">`+description+`</h1>
+            </div>
+          </div><br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">  
+              <i class="material-icons" style="font-size:20px">insert_comment</i>
+              Add a comment 
+              <br><br>
+              <h1 class="login-forms">
+              <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
+                {% csrf_token %}
+                  {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" style="margin-bottom:10px" %}
+                    <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
+                  {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
+                      <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
+                  {{ comment_form.image|add_class:"btn btn-success"|attr:"style:width:205px;" }}
+                  <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
+              </form>
+            </h1>
+            </div>
+          </div><br><br>
+          <div class="panel panel-default">
+            <div id="comment_section" class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
+              Activity
+              <hr>
+              `+comments+`
+            </div>
           </div>
-        </div>
-      `);
+        `);
 
       $('.assign-members-dropdown').on('submit', assignMembersList);
       $('.btn-archive-card').submit(archiveCard);
