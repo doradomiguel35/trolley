@@ -96,7 +96,7 @@ class ProgressSerializer(serializers.ModelSerializer):
 	"""
 	class Meta:
 		model = Progress
-		fields = ('id','title','progress','lists')
+		fields = ('id','title','progress','ticket')
 
 
 class ChecklistSerializer(serializers.ModelSerializer):

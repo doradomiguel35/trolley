@@ -38,4 +38,7 @@ urlpatterns = [
     path('board/view/card/unassign/member/<int:user_id>/<int:ticket_id>/', views.UnassignMemberView.as_view(), name='unassign_member'),
     path('board/view/card/create/progress/<int:ticket_id>/', views.CreateProgressView.as_view(), name='create_progress'),
     path('board/view/card/create/checklist/<int:progress_id>/', views.CreateCheckListView.as_view(), name='create_checklist'),
+    path('board/view/card/progress/checklist/done/<int:item_id>/', views.ChecklistDoneView.as_view(), name='check_progress'),
+    path('board/view/card/progress/checklist/undone/<int:item_id>/', views.ChecklistUndoneView.as_view(), name='check_progress_undone'),
+    path('board/view/card/delete/progress/<int:progress_id>/', views.DeleteChecklistView.as_view(), name="delete_checklist"),
 ]

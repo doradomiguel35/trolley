@@ -117,7 +117,7 @@ class Progress(models.Model):
     """
     title = models.CharField(max_length=100)
     progress = models.IntegerField(default=0)
-    lists = models.ForeignKey('main.List', on_delete=models.CASCADE)
+    ticket = models.ForeignKey('main.Ticket', on_delete=models.CASCADE)
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)

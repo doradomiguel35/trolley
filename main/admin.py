@@ -1,5 +1,5 @@
 from django.contrib import admin
-from. models import Board, Team, Ticket, Comment, List, InviteToBoard, ActivityLog
+from. models import Board, Team, Ticket, Comment, List, InviteToBoard, ActivityLog, Checklist, Progress
 
 
 class BoardAdmin(admin.ModelAdmin):
@@ -59,6 +59,22 @@ class ActivityLogAdmin(admin.ModelAdmin):
 	model = ActivityLog
 	list_display = ('activity','board','date_created')
 
+
+class ProgressAdmin(admin.ModelAdmin):
+	"""
+	Progress admin
+	"""
+	model = Progress
+	list_display = ('title','progress','ticket')
+
+
+class ChecklistAdmin(admin.ModelAdmin):
+	"""
+	Checklist admin
+	"""
+	model = Checklist
+	list_display = ('name','progress','done',)
+
 admin.site.register(Board, BoardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Ticket, TicketAdmin)
@@ -66,3 +82,5 @@ admin.site.register(Comment, CommentAdmin)
 admin.site.register(List, ListAdmin)
 admin.site.register(InviteToBoard, InviteBoardAdmin)
 admin.site.register(ActivityLog, ActivityLogAdmin)
+admin.site.register(Progress, ProgressAdmin)
+admin.site.register(Checklist, ChecklistAdmin)

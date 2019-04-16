@@ -186,12 +186,17 @@ class TicketView(View):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'),archived=False)
         comments = Comment.objects.filter(ticket_id=kwargs.get('ticket_id')
             ).values('id','user_id','user__first_name','user__last_name','comment','ticket_id','image','file')
+        progress = Progress.objects.filter(ticket_id=ticket.id)
+        checklist = Checklist.objects.filter(progress_id__in=progress).values('id','name','progress_id','done')
+
         
         serialize = TicketSerializer(ticket).data
         serialize['comment']= list(comments)
         serialize['members'] = list(ticket.assigned.all().values())
         serialize['board_id'] = ticket.lists.board_id
         serialize['assigned'] = list(ticket.assigned.all().values())
+        serialize['progress'] = list(progress.values('id','title','progress','ticket'))
+        serialize['checklist'] = list(checklist)
 
         return JsonResponse(serialize, safe=False)
 
@@ -637,8 +642,8 @@ class CreateProgressView(View):
         progress_form = ProgressForm(self.request.POST)
 
         if progress_form.is_valid():
-            progress = Progress(progress=progress_form.cleaned_data['title'],
-                lists_id=kwargs.get('ticket_id'))
+            progress = Progress(title=progress_form.cleaned_data['title'],
+                ticket_id=kwargs.get('ticket_id'))
             progress.save()
 
             serializer = ProgressSerializer(progress).data
@@ -654,13 +659,108 @@ class CreateCheckListView(View):
         checklist_form = ChecklistForm(self.request.POST)
 
         if checklist_form.is_valid():
-            checklist = Checklist(name=check_form.cleaned_data['name'],
+            checklist = Checklist(name=checklist_form.cleaned_data['name'],
                 progress_id=kwargs.get('progress_id'))
             
             checklist.save()
 
+            progress = Progress.objects.get(id=checklist.progress_id)
+            item = Checklist.objects.filter(progress_id=progress.id)
+            item_done = Checklist.objects.filter(progress_id=progress.id,done=True)
+
+            overall = item.count()
+            done = item_done.count()
+            per = (done/overall)*100
+
+            progress.progress = per
+            progress.save()
+
             serializer = ChecklistSerializer(checklist).data
+            serializer['progress'] = ProgressSerializer(progress).data
             return JsonResponse(serializer, safe=False)
+
+
+class ProgressView(View):
+    """
+    Update the progress of the checklist
+    """
+    def post(self, *args, **kwargs):
+        progress = Progress.objects.get(id=kwargs.get('progress_id'))
+        checklist = Checklist.objects.filter(progress_id=progress.id)
+        checklist_done = Checklist.objects.filter(progress_id=progress.id,done=True)
+
+        overall = checklist.count()
+        done = checklist_done.count()
+        per = (done/overall)*100
+
+        progress.progress = per
+        progress.save()
+
+        serializer = ProgressSerializer(progress).data
+        return JsonResponse(serializer, safe=False)
+
+
+class ChecklistDoneView(View):
+    """
+    Mark a item as done
+    """
+    def post(self, *args, **kwargs):
+        item = Checklist.objects.get(id=kwargs.get('item_id'))
+        item.done = True
+        item.save()
+
+        progress = Progress.objects.get(id=item.progress_id)
+        checklist = Checklist.objects.filter(progress_id=item.progress_id)
+        checklist_done = Checklist.objects.filter(progress_id=item.progress_id,done=True)
+
+        overall = checklist.count()
+        done = checklist_done.count()
+        per = (done/overall)*100
+
+        progress.progress = per
+        progress.save()
+
+        serializer = ProgressSerializer(progress).data
+        serializer['item'] = ChecklistSerializer(item).data
+        return JsonResponse(serializer, safe=False)
+
+
+class ChecklistUndoneView(View):
+    """
+    Mark a item as undone
+    """
+    def post(self, *args, **kwargs):
+        item = Checklist.objects.get(id=kwargs.get('item_id'))
+        item.done = False
+        item.save()
+
+        progress = Progress.objects.get(id=item.progress_id)
+        checklist = Checklist.objects.filter(progress_id=item.progress_id)
+        checklist_done = Checklist.objects.filter(progress_id=item.progress_id,done=True)
+
+        overall = checklist.count()
+        done = checklist_done.count()
+        per = (done/overall)*100
+
+        progress.progress = per
+        progress.save()
+
+        serializer = ProgressSerializer(progress).data
+        serializer['item'] = ChecklistSerializer(item).data
+        return JsonResponse(serializer, safe=False)
+
+
+class DeleteChecklistView(View):
+    """
+    Delete a checklist
+    """
+    def post(self, *args, **kwargs):
+        progress = Progress.objects.get(id=kwargs.get('progress_id'))
+        serializer = ProgressSerializer(progress).data
+        progress.delete()
+
+        return JsonResponse(serializer, safe=False)
+
 
 
 
