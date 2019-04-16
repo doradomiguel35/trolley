@@ -122,9 +122,10 @@
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" >
           <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <button type="button" class="close" data-dismiss='modal'>&times;</button>
           </div>
           <div class="modal-body" id="ticket-modal-body">
+            
             <div id="insert-modal-ticket" class="container">
               
             </div>
@@ -132,6 +133,25 @@
         </div>
       </div>
     </div>
+
+   <!--  <div class="modal fade" id="assignMemberModal" tabindex="-1" role="dialog" aria-labelledby="assignMemberModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Assign Members</h5>
+            <button type="button" class="close" id="btn-close-assign-members" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+          </div>
+          <div class="modal-footer">
+
+          </div>
+        </div>
+      </div>
+    </div> -->
     
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -181,6 +201,7 @@ function invite_form(event){
   $('.invite-form-btn').on('submit',invite_success);
   $('.cancel-invite-form').on('click',close_invite_form);
 }
+
 function close_invite_form(event){
   var board_id = $(this).attr('value');
   $('.invite-form').empty();
@@ -432,13 +453,13 @@ function modalClick(event){
         description = data.description+`<hr><button value="`+data.id+`" class="btn btn-primary edit-description-btn">Edit </button>`;
       }
       for(var i = 0; i < data.comment.length; i++){
-        if(data.comment[i].image != null || data.comment[i].image != ''){
+        if(data.comment[i].image != ""){
           console.log('image not null');
           image = `<a href="/media/`+data.comment[i].image+`"><img src="/media/`+data.comment[i].image+`" class="comment-image"></a>
             <hr>`;
         }
         
-        if(data.comment[i].file != null || data.comment[i].file != ''){
+        if(data.comment[i].file != ""){
           file = `<a href="`+data.comment[i].file+`">`+data.comment[i].file+`</a>`;
         }
 
@@ -481,43 +502,75 @@ function modalClick(event){
             </div>
             </div>
           </div>
-        <br><br><br>
-        <div class="panel panel-default">
-          <div class="panel-body">
-          <i class="material-icons" style="font-size:20px">description</i>
-          Description
-          <hr>
-          <h1 id="createDescription" class="login-forms" style="font-size: 16px;">`+description+`</h1>
+          <br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;">assignment</i>
+                Assign Members
+                <h1 class="login-forms">
+                <div class="dropdown">
+                    <form method="get" action="/main/board/view/card/get/members/`+data.id+`/" class="assign-members-dropdown" style="margin-top:20px;">
+                      <button class="btn btn-primary" type="submit" >Assign</button>
+                    </form>
+                    <ul class="dropdown-menu" id="assignMembersDropdown">
+  
+                    </ul>
+                </div>
+                </h1>
+            </div>
           </div>
-        </div><br><br>
-        <div class="panel panel-default">
-          <div class="panel-body">  
-            <i class="material-icons" style="font-size:20px">insert_comment</i>
-            Add a comment 
-            <br><br>
-            <h1 class="login-forms">
-            <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
-              {% csrf_token %}
-                {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" style="margin-bottom:10px" %}
-                  <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
-                {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
-                    <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
-                {{ comment_form.image|add_class:"btn btn-success"|attr:"style:width:205px;" }}
-                <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
-            </form>
-          </h1>
+          <br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;">check_box</i>
+              <div style="display:inline;">
+                Checklist
+              </div>
+              <h1 class="login-forms" style="font-size:14px;">
+                <button class="btn btn-primary" style="margin-top:20px;">
+                  <i class="material-icons" style="font-size:20px; margin-: 20px;">add</i>
+                </button>
+              </h1>
+            </div>
           </div>
-        </div><br><br>
-        <div class="panel panel-default">
-          <div id="comment_section" class="panel-body">
-            <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
-            Activity
+          <br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">
+            <i class="material-icons" style="font-size:20px">description</i>
+            Description
             <hr>
-            `+comments+`
+            <h1 id="createDescription" class="login-forms" style="font-size: 16px;">`+description+`</h1>
+            </div>
+          </div><br><br>
+          <div class="panel panel-default">
+            <div class="panel-body">  
+              <i class="material-icons" style="font-size:20px">insert_comment</i>
+              Add a comment 
+              <br><br>
+              <h1 class="login-forms">
+              <form method="post" action="/main/board/view/card/comment/`+data.id+`/" enctype='multipart/form-data' class="comment">
+                {% csrf_token %}
+                  {% render_field comment_form.comment class+="form-control" rows="5" placeholder="Write a comment" style="margin-bottom:10px" %}
+                    <i class="material-icons" style="font-size:20px;display:inline;">attach_file</i>
+                  {{ comment_form.file|add_class:"btn btn-primary"|attr:"style:width:205px;" }} 
+                      <i class="material-icons" style="font-size:20px;display:inline;margin-left:30px;">image</i>
+                  {{ comment_form.image|add_class:"btn btn-success"|attr:"style:width:205px;" }}
+                  <button class="btn btn-primary" style="float:right;" type="submit">Save</button>
+              </form>
+            </h1>
+            </div>
+          </div><br><br>
+          <div class="panel panel-default">
+            <div id="comment_section" class="panel-body">
+              <i class="material-icons" style="font-size:20px; margin-: 20px;"">local_activity</i>
+              Activity
+              <hr>
+              `+comments+`
+            </div>
           </div>
-        </div>
-      `);
+        `);
 
+      $('.assign-members-dropdown').on('submit', assignMembersList);
       $('.btn-archive-card').submit(archiveCard);
       $('.comment').submit(addComment);
       $('.description').submit(writeDescription);
@@ -529,6 +582,165 @@ function modalClick(event){
   });
    
 }
+
+function invite_board(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log('click');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      $('#ul-invitations').addClass('show');
+      $('.insert-invitations').empty();
+
+      for(var i = 0; i < data.invites.length; i++){
+        $('.insert-invitations').append(`
+          <li class"invitations-dropdown">
+            <h1 class="login-forms" style="font-size:14px;">
+               You are invited by `+data.invites[i].invited_by__email+` to collaborate with a board (`+data.invites[i].board__title+`) 
+              </h1>
+              <form method="post" action="/main/board/invite/confirm/`+data.invites[i].board_id+`/`+data.invites[i].id+`/" style="display: inline;">
+              {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Confirm</button>
+                <button type="button" class="btn btn-danger close-invitations">Cancel</button>
+              </form>
+          </li>
+          <hr>
+        `);
+      }
+      $('.close-invitations').on('click',close_invites);
+    }
+  });
+}
+
+
+function assignMembersList(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data);
+      $('#assignMembersDropdown').empty();
+      $('#assignMembersDropdown').addClass('show');
+      $('#assignMembersDropdown').append(`
+        <button type="button" class="btn btn-danger close-assign" style="margin-left:170px;margin-bottom:10px;">
+          X
+        </button>`);
+      for(var i = 0; i < data.unassigned.length; i++){
+        $('#assignMembersDropdown').append(`
+          <li class"invitations-dropdown" id="unassigned-`+data.unassigned[i].id+`">
+            <div class="alert alert-primary" style="height:50px;padding:5px;">
+            <h1 class="login-forms" style="font-size:14px;">
+            `+data.unassigned[i].first_name+` &nbsp `+data.unassigned[i].last_name+`
+              <form method="post" action="/main/board/view/card/assign/member/`+data.unassigned[i].id+`/`+data.id+`/" style="display:inline; margin-left:10px;" class="assign-btn">
+                {% csrf_token %}
+                  <button class="btn btn-primary" type="submit">Assign</button
+              </form>
+              </h1>
+            </div>
+          </li>
+        `);
+      }
+
+      for(var i = 0; i< data.assigned.length; i++){
+        $('#assignMembersDropdown').append(`
+          <li class"invitations-dropdown" id="assigned-`+data.assigned[i].id+`">
+            <div class="alert alert-primary" style="height:50px;padding:5px;">
+            <h1 class="login-forms" style="font-size:14px;">
+              `+data.assigned[i].first_name+` &nbsp `+data.assigned[i].last_name+`
+              <form method="post" action="/main/board/view/card/unassign/member/`+data.assigned[i].id+`/`+data.id+`/" style="display:inline; margin-left:10px;" class="unassign-btn">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger" type="submit">Unassign</button>
+              </form>
+            </h1>
+            </div>  
+          </li>
+
+        `);
+      }
+
+      //events
+      $('.close-assign').on('click', function(event){
+        $('#assignMembersDropdown').removeClass('show');
+      });
+
+      $('.assign-btn').on('submit',assignMember);
+      $('.unassign-btn').on('submit',unassignMember);
+      //
+    }
+  });
+}
+
+function assignMember(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#unassigned-'+data.user.id).remove();
+      $('#assignMembersDropdown').append(`
+        <li class"invitations-dropdown" id="assigned-`+data.user.id+`">
+          <div class="alert alert-primary" style="height:50px;padding:5px;">
+          <h1 class="login-forms" style="font-size:14px;">
+            `+data.user.first_name+` &nbsp `+data.user.last_name+`
+            <form method="post" action="/main/board/view/card/unassign/member/`+data.user.id+`/`+data.id+`/" style="display:inline; margin-left:10px;" class="unassign-btn">
+              {% csrf_token %}
+              <button class="btn btn-outline-danger" type="submit">Unassign</button>
+            </form>
+          </h1>
+          </div>  
+        </li>
+      `);
+
+    //events
+      $('.unassign-btn').on('submit',unassignMember);
+      //
+    }
+
+  });
+    event.stopImmediatePropagation();
+}
+
+function unassignMember(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      $('#assigned-'+data.user.id).remove();
+      $('.close-assign').after(`
+        <li class"invitations-dropdown" id="unassigned-`+data.user.id+`">
+          <div class="alert alert-primary" style="height:50px;padding:5px;">
+          <h1 class="login-forms" style="font-size:14px;">
+          `+data.user.first_name+` &nbsp `+data.user.last_name+`
+            <form method="post" action="/main/board/view/card/assign/member/`+data.user.id+`/`+data.id+`/" style="display:inline; margin-left:10px;" class="assign-btn">
+              {% csrf_token %}
+                <button class="btn btn-primary" type="submit">Assign</button
+            </form>
+            </h1>
+          </div>
+        </li>
+      `);
+
+      //events
+      $('.assign-btn').on('submit',assignMember);
+      //
+    }
+  });
+  event.stopImmediatePropagation();
+}
+
 
 function archiveCard(event){
   event.preventDefault();
@@ -590,7 +802,7 @@ function closeEditDescForm(event){
 }
 
 function closeModalTicket(event){
-  $('#insert-modal-ticket').empty();
+   $('#insert-modal-ticket').empty();
 }
 
 function addComment(event){
@@ -608,12 +820,11 @@ function addComment(event){
       console.log(data);
       var image = "";
       var file = "";
-
-      if(data.image != null || data.image != ''){ // check if there is a image
+      if(data.image != null){ // check if there is a image
         image= `<a href="`+data.image+`"><img src="`+data.image+`" class="comment-image"></a><hr>`;
       }
 
-      if(data.file != null || data.file != ''){
+      if(data.file != null){
         file = `<a href="`+data.file+`">`+data.file+`</a>`;
       }
 
@@ -700,6 +911,15 @@ function editComment(event){
     data: $(this).serialize(),
     success: function(data){
       console.log(data);
+      var image = "";
+      var file = "";
+      if(data.image != null){ // check if there is a image
+        image= `<a href="`+data.image+`"><img src="`+data.image+`" class="comment-image"></a><hr>`;
+      }
+
+      if(data.file != null){
+        file = `<a href="`+data.file+`">`+data.file+`</a>`;
+      }
       $('#editComment'+data.id).empty();
       $('#editComment'+data.id).append(`
         <h1 class="login-forms" style="font-size:16px; ">
@@ -709,9 +929,8 @@ function editComment(event){
           `+data.comment+`
           <hr>
             <h1 class="login-forms" style="font-size:16px;">Files</h1>
-            <a href="/media/`+data.image+`"><img src="`+data.image+`"></a>
-            <hr>
-            <a href="/media/`+data.file+`">`+data.file+`</a>
+            `+image+`
+            `+file+`
           </div>
           <button value="`+data.id+`" class="btn btn-primary editCommentBtn" style="display:inline-block">Edit</button>
           <form method="post" action="/main/board/view/card/comment/delete/`+data.id+`/" class="delete-comment-btn" style="display:inline;">
@@ -823,38 +1042,6 @@ function changeList(event){
 
 function close_invites(event){
    $('#ul-invitations').removeClass('show');
-}
-
-function invite_board(event){
-  event.preventDefault();
-  var url = $(this).attr('action');
-  console.log('click');
-
-  $.ajax({
-    url:url,
-    data: $(this).serialize(),
-    success: function(data){
-      $('#ul-invitations').addClass('show');
-      $('.insert-invitations').empty();
-
-      for(var i = 0; i < data.invites.length; i++){
-        $('.insert-invitations').append(`
-          <li class"invitations-dropdown">
-            <h1 class="login-forms" style="font-size:14px;">
-               You are invited by `+data.invites[i].invited_by__email+` to collaborate with a board (`+data.invites[i].board__title+`) 
-              </h1>
-              <form method="post" action="/main/board/invite/confirm/`+data.invites[i].board_id+`/`+data.invites[i].id+`/" style="display: inline;">
-              {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Confirm</button>
-                <button type="button" class="btn btn-danger close-invitations">Cancel</button>
-              </form>
-          </li>
-          <hr>
-        `);
-      }
-      $('.close-invitations').on('click',close_invites);
-    }
-  });
 }
 
 function unarchiveList(event){
@@ -1054,6 +1241,8 @@ function archivedItems(event){
     success: function(data){
       console.log(data);
       $('#tab-archive-list').empty();
+      $('#tab-archive-card').empty();
+      $('#tab-activities').empty();
       $('#tab-archive-list').append(`
         <h1 class="login-forms"> Lists </h1>
       `);
@@ -1096,6 +1285,19 @@ function archivedItems(event){
           </div>
         `);
       }
+
+      for(var i =0; i < data.activities.length; i++){
+        $('#tab-activities').append(`
+          <div class="alert alert-primary" id="activity-`+data.activities[i].id+`">
+            <h1 class="login-forms" style="font-size:20px;">
+              `+data.activities[i].activity+`
+            </h1>
+            <h1 class="login-forms" style="font-size: 12px;">
+              `+data.activities[i].date_created+`
+            </h1>
+          </div>
+        `);
+      }
       $('.unarchive-card-btn').submit(unarchiveCard);
       $('.delete-card-btn').submit(deleteCard);
       $('.unarchive-list-btn').submit(unarchiveList);
@@ -1135,7 +1337,8 @@ $('.show-menu').on('click', function(){
   console.log('show menu');
   $('.show-menu-btn').trigger('submit');
 })
-// $('#nav-archive-list-tab').on('click', archivedLists);
+
+$('.assign-members-dropdown').on('submit', assignMembersList);
 $('.show-menu-btn').on('submit', archivedItems);
 $('.btn-archive-list').on('submit', archiveList);
 $('.btn-close-invitations').on('click', close_invites);
@@ -1146,10 +1349,13 @@ $('.lists-container').disableSelection();
 $('.list-items').disableSelection();
 $('.searchBoardForm').on('submit',searchBoard);
 $('.ticket-modal').on('click',modalClick);
-$('.close').on('click', closeModalTicket);
+$('#close-ticket-modal').on('click', closeModalTicket);
 $('.add-card-btn').click(add_card_form);
 $('#btn-add-list').on('click',add_list_form); 
 $('.members-modal-view').on('submit',displayMembers);
+$('#btn-close-assign-members').on('click', function(event){
+  $('#assignMemberModal').removeClass('show');
+});
 </script>
 </body>
 </html>

@@ -53,7 +53,7 @@ class Ticket(models.Model):
     """
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=300, default="", blank=True, null=True)
-    assigned = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    assigned = models.ManyToManyField('users.User', blank=True)
     lists = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True)
     archived = models.BooleanField(default=False)
 
@@ -100,14 +100,38 @@ class InviteToBoard(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 
-class Activities(models.Model):
+class ActivityLog(models.Model):
     """
     Activity log
     """
-    board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
     activity = models.CharField(max_length=250)
+    board = models.ForeignKey('main.Board', on_delete=models.CASCADE)
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+
+
+class Progress(models.Model):
+    """
+    Progress
+    """
+    title = models.CharField(max_length=100)
+    progress = models.IntegerField()
+    lists = models.ForeignKey('main.List', on_delete=models.CASCADE)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
+
+class Checklist(models.Model):
+    """
+    Checklist for cards
+    """
+    name = models.CharField(max_length=100)
+    progress = models.ForeignKey('main.Progress', on_delete=models.CASCADE)
+
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+
 
 

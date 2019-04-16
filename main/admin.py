@@ -1,5 +1,5 @@
 from django.contrib import admin
-from. models import Board, Team, Ticket, Comment, List, InviteToBoard
+from. models import Board, Team, Ticket, Comment, List, InviteToBoard, ActivityLog
 
 
 class BoardAdmin(admin.ModelAdmin):
@@ -52,9 +52,17 @@ class InviteBoardAdmin(admin.ModelAdmin):
 	list_display = ('confirmed','user','board')
 
 
+class ActivityLogAdmin(admin.ModelAdmin):
+	"""
+	Activity log admin
+	"""
+	model = ActivityLog
+	list_display = ('activity','board','date_created')
+
 admin.site.register(Board, BoardAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(List, ListAdmin)
 admin.site.register(InviteToBoard, InviteBoardAdmin)
+admin.site.register(ActivityLog, ActivityLogAdmin)

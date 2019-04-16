@@ -31,7 +31,6 @@
 
 		{% for list in lists %}
     	<div id="list-{{ list.id }}" class="list">
-    		
     		<h3 class="list-title">
     			{{ list.name }}
     			<div class="dropdown show" style="display: inline-block;text-align: center;">
@@ -108,13 +107,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="tab-activities" id="tab-activities" role="tabpanel" aria-labelledby="nav-activities-tab"></div>
+                <div class="tab-pane fade" id="tab-activities" id="tab-activities" role="tabpanel" aria-labelledby="nav-activities-tab">
+					<!-- activity log -->
+                </div>
             </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    
 	
 </body>
 {% endblock content %}

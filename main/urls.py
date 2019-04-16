@@ -33,4 +33,7 @@ urlpatterns = [
     path('board/view/card/comment/edit/<int:comment_id>/', views.EditComment.as_view(), name="edit_comment"),
     path('board/view/card/comment/get/<int:comment_id>/',views.CommentView.as_view(),name='get_comment'),
     path('board/view/card/comment/delete/<int:comment_id>/',views.DeleteComment.as_view(),name='delete_comment'),
+    path('board/view/card/get/members/<int:ticket_id>/', views.AssignMemberView.as_view(), name='get_assign_member'),
+    path('board/view/card/assign/member/<int:user_id>/<int:ticket_id>/', views.AssignMemberView.as_view(), name='assign_member'),
+    path('board/view/card/unassign/member/<int:user_id>/<int:ticket_id>/', views.UnassignMemberView.as_view(), name='unassign_member'),
 ]
