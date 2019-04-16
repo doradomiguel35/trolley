@@ -527,9 +527,10 @@ function modalClick(event){
                 Checklist
               </div>
               <h1 class="login-forms" style="font-size:14px;">
-                <button class="btn btn-primary" style="margin-top:20px;">
+                <button class="btn btn-primary" style="margin-top:20px;" id="add-checklist-form-btn">
                   <i class="material-icons" style="font-size:20px; margin-: 20px;">add</i>
                 </button>
+                <div id="insert-checklist"></div>
               </h1>
             </div>
           </div>
@@ -1306,6 +1307,13 @@ function archivedItems(event){
   })
 }
 
+function add_checklist_form(event){
+  $('#insert-checklist').empty();
+  $('#insert-checklist').append(`
+  
+  `);
+}
+
 //events
 $('.list-items').sortable({
   connectWith: '.list-items',
@@ -1336,8 +1344,10 @@ $('.lists-container').sortable({
 $('.show-menu').on('click', function(){
   console.log('show menu');
   $('.show-menu-btn').trigger('submit');
-})
+});
 
+
+// $('#add-checklist-form-btn').on('click', );
 $('.assign-members-dropdown').on('submit', assignMembersList);
 $('.show-menu-btn').on('submit', archivedItems);
 $('.btn-archive-list').on('submit', archiveList);

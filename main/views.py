@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from .models import Board, Team, List, Ticket, Comment, InviteToBoard, ActivityLog
+from .models import Board, Team, List, Ticket, Comment, InviteToBoard, ActivityLog, Progress, Checklist
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
-    TicketDescForms, EditCommentForms, SearchForm, InviteUserBoardForm)
+    TicketDescForms, EditCommentForms, SearchForm, InviteUserBoardForm, ProgressForm,
+    ChecklistForm,)
 from django.http import HttpResponseRedirect
 from users.models import User
 from django.urls import reverse
@@ -9,7 +10,8 @@ from django.urls import reverse
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
-    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer)
+    CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer,
+    ProgressSerializer, ChecklistSerializer,)
 from users.serializers import UserSerializer
 
 """ LIST OF CLASSES
@@ -90,6 +92,8 @@ class BoardView(TemplateView):
     ticket_desc_form = TicketDescForms()
     search_form = SearchForm()
     invite_form = InviteUserBoardForm()
+    progress_form = ProgressForm()
+    checklist_form = ChecklistForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
@@ -111,7 +115,9 @@ class BoardView(TemplateView):
              'comment_form': self.comment_form,
              'ticket_desc_form': self.ticket_desc_form,
              'search_form': self.search_form,
-             'invite_form': self.invite_form})
+             'invite_form': self.invite_form,
+             'progress_form': self.progress_form,
+             'checklist_form': self.checklist_form})
 
 
     def post(self, *args, **kwargs):
@@ -142,7 +148,9 @@ class BoardView(TemplateView):
                  'comment_form': self.comment_form,
                  'ticket_desc_form': self.ticket_desc_form,
                  'search_form': self.search_form,
-                 'invite_form': self.invite_form})
+                 'invite_form': self.invite_form,
+                 'progress_form': self.progress_form,
+                 'checklist_form': self.checklist_form})
   
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
@@ -618,3 +626,46 @@ class UnassignMemberView(View):
         serializer['user'] = UserSerializer(user).data
 
         return JsonResponse(serializer, safe=False)
+
+
+class CreateProgressView(View):
+    """
+    Create a progress 
+    """
+
+    def post(self, *args, **kwargs):
+        progress_form = ProgressForm(self.request.POST)
+
+        if progress_form.is_valid():
+            progress = Progress(progress=progress_form.cleaned_data['title'],
+                lists_id=kwargs.get('ticket_id'))
+            progress.save()
+
+            serializer = ProgressSerializer(progress).data
+            return JsonResponse(serializer, safe=False)
+
+
+class CreateCheckListView(View):
+    """
+    Create a checklist
+    """
+
+    def post(self, *args, **kwargs):
+        checklist_form = ChecklistForm(self.request.POST)
+
+        if checklist_form.is_valid():
+            checklist = Checklist(name=check_form.cleaned_data['name'],
+                progress_id=kwargs.get('progress_id'))
+            
+            checklist.save()
+
+            serializer = ChecklistSerializer(checklist).data
+            return JsonResponse(serializer, safe=False)
+
+
+
+
+
+
+
+
