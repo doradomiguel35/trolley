@@ -358,24 +358,41 @@ class InviteToBoardView(View):
         if invite_email.is_valid():
             try:
                 user = User.objects.get(email=invite_email.cleaned_data['email'])
+
             except:
-                return JsonResponse({'error': 'email doesn not exist'}, safe=False)
+                user = None
 
             try:
-                invite = InviteToBoard.objects.get(user_id=user.id,
-                    board_id=kwargs.get('board_id'))   
+                if user is None:
+                    invite = InviteToBoard(board_id=kwargs.get('board_id'))   
+                else:
+                    invite = InviteToBoard.objects.get(user_id=user.id,
+                        board_id=kwargs.get('board_id'))   
+
             except:
-                invite = InviteToBoard(user_id=user.id,
-                    board_id=kwargs.get('board_id'),invited_by_id=self.request.user.id)
+                if user is None:
+                    invite = InviteToBoard(board_id=kwargs.get('board_id'),
+                        invited_by_id=self.request.user.id)   
+                else:
+                    invite = InviteToBoard(user_id=user.id,
+                        board_id=kwargs.get('board_id'),invited_by_id=self.request.user.id)
                 invite.save()
 
-            msg = self.request.user.first_name+" "+self.request.user.last_name+" invited "+user.first_name+" "+user.last_name+" to the board"
+            if user is None:
+                msg = self.request.user.first_name+" "+self.request.user.last_name+" invited a user that is not registered in trolley"
+            else:
+                msg = self.request.user.first_name+" "+self.request.user.last_name+" invited "+user.first_name+" "+user.last_name+" to the board"
 
             activity = ActivityLog(activity=msg,board_id=kwargs.get('board_id'))
             activity.save()
             serializer = InviteBoardSerializer(invite).data
-            serializer['email'] = user.email
+
+            if user is not None:
+                serializer['email'] = user.email
+
             return JsonResponse(serializer, safe=False)
+        return JsonResponse({'error': 'Incorrect email format',
+            'board':kwargs.get('board_id')}, safe=False )
 
 
 class ConfirmInviteBoard(View):
@@ -760,6 +777,14 @@ class DeleteChecklistView(View):
         progress.delete()
 
         return JsonResponse(serializer, safe=False)
+
+
+# class DeleteChecklistItemView(View):
+#     """
+#     Delete an item in the checklist
+#     """
+#     def post(self, *args, **kwargs):
+
 
 
 

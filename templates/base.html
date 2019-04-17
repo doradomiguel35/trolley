@@ -170,10 +170,23 @@ function invite_success(event){
     method: 'POST',
     data: $(this).serialize(),
     success: function(data){
+      var msg = '';
+      console.log(data);
       $('.invite-form').empty();
+
+      if(data.email === undefined){
+        msg = 'Email does not exist'
+      }
+      else{
+        msg = `Successfully sent a invite to `+data.email;
+      }
+
+      if(data.error){
+        msg = data.error;
+      }
       $('.invite-form').append(`
         <h1 class="login-forms" style="font-size: 15px;margin-right250px;">
-          Successfully sent a invite to `+data.email+`
+          `+msg+`
         </h1>
         <button value="`+data.board+`" type="button" class="btn btn-success" id="invite-user-btn" style="float:left;">
           <h1 class="login-forms" style="font-size: 15px;">
@@ -595,6 +608,7 @@ function modalClick(event){
               <button class="btn btn-primary item-form-btn" type="button" value="`+data.progress[i].id+`" style="margin-top:10px;">Add Item</button>
               <div id="item-form-`+data.progress[i].id+`"></div>
               <div id="items-`+data.progress[i].id+`"></div>
+              <hr>
           </div
         `);
       }
@@ -787,6 +801,7 @@ function add_checklist(event){
             <button class="btn btn-primary item-form-btn" type="button" value="`+data.id+`" style="margin-top:10px;">Add Item</button>
             <div id="item-form-`+data.id+`"></div>
             <div id="items-`+data.id+`"></div>
+            <hr>
         </div
       `);
 
