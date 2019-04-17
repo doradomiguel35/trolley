@@ -41,4 +41,5 @@ urlpatterns = [
     path('board/view/card/progress/checklist/done/<int:item_id>/', views.ChecklistDoneView.as_view(), name='check_progress'),
     path('board/view/card/progress/checklist/undone/<int:item_id>/', views.ChecklistUndoneView.as_view(), name='check_progress_undone'),
     path('board/view/card/delete/progress/<int:progress_id>/', views.DeleteChecklistView.as_view(), name="delete_checklist"),
+    path('board/view/card/delete/item/<int:item_id>/', views.DeleteChecklistItemView.as_view(), name="delete_checklist_item"),
 ]

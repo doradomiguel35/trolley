@@ -779,11 +779,32 @@ class DeleteChecklistView(View):
         return JsonResponse(serializer, safe=False)
 
 
-# class DeleteChecklistItemView(View):
-#     """
-#     Delete an item in the checklist
-#     """
-#     def post(self, *args, **kwargs):
+class DeleteChecklistItemView(View):
+    """
+    Delete an item in the checklist
+    """
+    def post(self, *args, **kwargs):
+        item = Checklist.objects.get(id=kwargs.get('item_id'))
+        progress_id = item.progress_id
+        serializer = ChecklistSerializer(item).data
+        item.delete()
+
+        progress = Progress.objects.get(id=progress_id)
+        checklist = Checklist.objects.filter(progress_id=progress_id)
+        checklist_done = Checklist.objects.filter(progress_id=progress_id,done=True)
+
+        overall = checklist.count()
+        done = checklist_done.count()
+        per = (done/overall)*100
+
+        progress.progress = per
+        progress.save()
+
+        serializer = ProgressSerializer(progress).data
+        serializer['item'] = ChecklistSerializer(item).data
+        return JsonResponse(serializer, safe=False)
+
+
 
 
 

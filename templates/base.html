@@ -615,30 +615,43 @@ function modalClick(event){
 
       for(var i = 0; i < data.checklist.length; i++){
         if(data.checklist[i].done === true){
-          status = `<form action="/main/board/view/card/progress/checklist/undone/`+data.checklist[i].id+`/" method="post" class="list-undone-btn" style="display:inline;">
+          status = `<form method="post" action="/main/board/view/card/delete/item/`+data.checklist[i].id+`/" class="delete-item-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" style="float:right;" type="submit">X</button>
+          </form>
+          <form action="/main/board/view/card/progress/checklist/undone/`+data.checklist[i].id+`/" method="post" class="list-undone-btn" style="display:inline;">
             {% csrf_token %}
             <button class="btn btn-danger" type="submit" style="float:right;">Undone</button>
-          </form>`;
+          </form>
+           `;
         }
         else{
-          status = `<form action="/main/board/view/card/progress/checklist/done/`+data.checklist[i].id+`/" method="post" class="list-done-btn" style="display:inline;">
+          status = `<form method="post" action="/main/board/view/card/delete/item/`+data.checklist[i].id+`/" class="delete-item-btn" style="display:inline;">
+                {% csrf_token %}
+                <button class="btn btn-danger" style="float:right;" type="submit">X</button>
+              </form>
+              <form action="/main/board/view/card/progress/checklist/done/`+data.checklist[i].id+`/" method="post" class="list-done-btn" style="display:inline;">
                 {% csrf_token %}
                 <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
-              </form>`;
+              </form>
+              `;
         }
 
         $('#items-'+data.checklist[i].progress_id).append(`
-          <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
-          <h1 class="login-forms" style="font-size: 20px;">
-            <div id="item-status-`+data.checklist[i].id+`" style="display:inline; ">
-              `+data.checklist[i].name+`
-              `+status+`
-            </div>
-          </h1>
+          <div id="item-checklist-`+data.checklist[i].id+`">
+            <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
+            <h1 class="login-forms" style="font-size: 20px;">
+              <div id="item-status-`+data.checklist[i].id+`" style="display:inline; ">
+                `+data.checklist[i].name+`
+                `+status+`
+              </div>
+            </h1>
+          </div>
         </div>
         `);
       }
 
+      $('.delete-item-btn').on('submit', delete_item);
       $('.delete-checklist-btn').on('submit', delete_checklist);
       $('.list-undone-btn').on('submit', item_undone);
       $('.list-done-btn').on('submit',item_done);
@@ -657,6 +670,24 @@ function modalClick(event){
    
 }
 
+function delete_item(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+  console.log('delete_item');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      console.log(data.progress);
+      $('#item-checklist-'+data.item.id).remove();
+      $('#progressbar-'+data.id).attr('style','width: '+data.progress+'%');
+      $('#progressbar-'+data.id).attr('aria-valuenow', data.progress);
+    }
+  });
+}
+
 function delete_checklist(event){
   event.preventDefault();
   var url = $(this).attr('action');
@@ -667,6 +698,7 @@ function delete_checklist(event){
     data: $(this).serialize(),
     success: function(data){
       $('#checklist-'+data.id).remove();
+      
     }
   });
   event.stopImmediatePropagation();
@@ -701,22 +733,30 @@ function add_item(event){
     data: $(this).serialize(),
     success: function(data){
       $('#items-'+data.progress.id).append(`
-        <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
-          <h1 class="login-forms" style="font-size: 20px;">
-            <div id="item-status-`+data.id+`" style="display:inline;">
-              `+data.name+`
-              <form action="/main/board/view/card/progress/checklist/done/`+data.id+`/" method="post" class="list-done-btn" style="display:inline;">
-                {% csrf_token %}
-                <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
-              </form>
-            </div>
-          </h1>
+        <div id="item-checklist-`+data.id+`">
+          <div class="alert alert-primary" style="height:60px;margin-top:10px;margin-bottom:10px;padding:10px;">
+            <h1 class="login-forms" style="font-size: 20px;">
+              <div id="item-status-`+data.id+`" style="display:inline;">
+                `+data.name+`
+                <form method="post" action="/main/board/view/card/delete/item/`+data.id+`/" class="delete-item-btn" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-danger" style="float:right;" type="submit">X</button>
+                </form>
+                <form action="/main/board/view/card/progress/checklist/done/`+data.id+`/" method="post" class="list-done-btn" style="display:inline;">
+                  {% csrf_token %}
+                  <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
+                </form>
+
+              </div>
+            </h1>
+          </div>
         </div>
       `);
       $('#progressbar-'+data.progress.id).attr('style','width: '+data.progress.progress+'%')
       $('#progressbar-'+data.progress.id).attr('aria-valuenow', data.progress.progress)
 
       $('.list-done-btn').on('submit',item_done);
+      $('.delete-item-btn').on('submit', delete_item);
     }
   });
   event.stopImmediatePropagation();
@@ -734,7 +774,11 @@ function item_undone(event){
       console.log(data);
       $('#item-status-'+data.item.id).empty();
       $('#item-status-'+data.item.id).append(`
-          `+data.item.name+`<form action="/main/board/view/card/progress/checklist/done/`+data.item.id+`/" method="post" class="list-done-btn" style="display:inline;">
+          `+data.item.name+`<form method="post" action="/main/board/view/card/delete/item/`+data.item.id+`/" class="delete-item-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" style="float:right;" type="submit">X</button>
+          </form>
+          <form action="/main/board/view/card/progress/checklist/done/`+data.item.id+`/" method="post" class="list-done-btn" style="display:inline;">
             {% csrf_token %}
             <button class="btn btn-primary" type="submit" style="float:right;">Done</button>
           </form>
@@ -743,6 +787,8 @@ function item_undone(event){
       $('#progressbar-'+data.id).attr('style','width: '+data.progress+'%')
       $('#progressbar-'+data.id).attr('aria-valuenow', data.progress)
       
+
+      $('.delete-item-btn').on('submit', delete_item);
       $('.list-done-btn').on('submit',item_done);
     }
   });
@@ -761,15 +807,20 @@ function item_done(event){
       console.log(data);
       $('#item-status-'+data.item.id).empty();
       $('#item-status-'+data.item.id).append(`
-          `+data.item.name+`<form action="/main/board/view/card/progress/checklist/undone/`+data.item.id+`/" method="post" class="list-undone-btn" style="display:inline;">
+          `+data.item.name+`<form method="post" action="/main/board/view/card/delete/item/`+data.item.id+`/" class="delete-item-btn" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" style="float:right;" type="submit">X</button>
+          </form>
+          <form action="/main/board/view/card/progress/checklist/undone/`+data.item.id+`/" method="post" class="list-undone-btn" style="display:inline;">
             {% csrf_token %}
             <button class="btn btn-danger" type="submit" style="float:right;">Undone</button>
           </form>
       `);
 
       $('#progressbar-'+data.id).attr('style','width: '+data.progress+'%');
-      $('#progressbar-'+data.id).attr('aria-valuenow', data.progress);
+      $('#progressbar-'+data.id).attr('aria-valuenow', data.progress);  
 
+      $('.delete-item-btn').on('submit', delete_item);
       $('.list-undone-btn').on('submit', item_undone);
     }
   });
