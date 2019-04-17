@@ -140,7 +140,7 @@ header {
 
 .column {
 	flex: 1;
-	border: 1px solid gray;	
+	/*border: 1px solid gray;	*/
 	margin: 2px;
 	padding: 10px;
 	&:first-child { margin-left: 0; }
@@ -566,11 +566,20 @@ footer {
     text-decoration: underline;
 }
 #assignMembersDropdown{
-/*	margin-left: 1550px;
-	width: 300px;
-	min-height: 50px;
-	border: .5px solid gray;
-	border-radius: 5px;
-	padding: 5px;
-*/	background-color: #e0e0e0;
+	background-color: #e0e0e0;
+}
+
+.parent {
+  display: grid;
+  grid-template-columns: 200px 200px 200px 200px;
+  grid-gap: 18px;
+  background-color: #fff;
+  color: #444;
+  justify-content: center; 
+}
+
+.column-board {
+  /*border: 1px solid #000;*/
+   width: 260px;
+   height: 100px;
 }

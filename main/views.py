@@ -2,17 +2,19 @@ from django.shortcuts import render
 from .models import Board, Team, List, Ticket, Comment, InviteToBoard, ActivityLog, Progress, Checklist
 from .forms import (BoardForms, TeamForms, ListForms, TicketCreationForms, CommentForms, 
     TicketDescForms, EditCommentForms, SearchForm, InviteUserBoardForm, ProgressForm,
-    ChecklistForm,)
+    ChecklistForm,TicketDeadlineForm)
 from django.http import HttpResponseRedirect
 from users.models import User
 from django.urls import reverse
+from django.core.mail import send_mail
 
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .serializers import (ListSerializer, TicketCreationSerializer, TicketSerializer, 
     CommentSerializer, TicketDescSerializer, CommentEditSerializer, BoardSerializer, InviteBoardSerializer,
-    ProgressSerializer, ChecklistSerializer,)
+    ProgressSerializer, ChecklistSerializer)
 from users.serializers import UserSerializer
+from datetime import datetime,timezone,date
 
 """ LIST OF CLASSES
 TeamView
@@ -94,13 +96,13 @@ class BoardView(TemplateView):
     invite_form = InviteUserBoardForm()
     progress_form = ProgressForm()
     checklist_form = ChecklistForm()
+    deadline_form = TicketDeadlineForm()
 
     def get(self, *args, **kwargs):
         board = Board.objects.get(id=kwargs.get('id'))
         team = self.request.user.teams.all()
         lists = List.objects.filter(board_id=board.id,archived=False)
         tickets = Ticket.objects.filter(lists_id__in=lists,archived=False)
-
 
         return render(self.request, 'board/board.html',
             {'user': self.request.user,
@@ -117,7 +119,8 @@ class BoardView(TemplateView):
              'search_form': self.search_form,
              'invite_form': self.invite_form,
              'progress_form': self.progress_form,
-             'checklist_form': self.checklist_form})
+             'checklist_form': self.checklist_form,
+             'deadline_form': self.deadline_form})
 
 
     def post(self, *args, **kwargs):
@@ -135,6 +138,10 @@ class BoardView(TemplateView):
             lists = List.objects.filter(board_id=board.id)
             tickets = Ticket.objects.filter(lists_id__in=lists)
 
+            msg = self.request.user.first_name+' '+self.request.user.last_name+' created this board'
+            activity = ActivityLog(activity=msg,board_id=board.id)
+            activity.save()
+
             return render(self.request, 'board/board.html',
                 {'user': self.request.user,
                  'board': board,
@@ -150,7 +157,8 @@ class BoardView(TemplateView):
                  'search_form': self.search_form,
                  'invite_form': self.invite_form,
                  'progress_form': self.progress_form,
-                 'checklist_form': self.checklist_form})
+                 'checklist_form': self.checklist_form,
+                 'deadline_form': self.deadline_form})
   
         teams = self.request.user.teams.all()
         boards = Board.objects.filter(owner_id=self.request.user.id)
@@ -189,7 +197,6 @@ class TicketView(View):
         progress = Progress.objects.filter(ticket_id=ticket.id)
         checklist = Checklist.objects.filter(progress_id__in=progress).values('id','name','progress_id','done')
 
-        
         serialize = TicketSerializer(ticket).data
         serialize['comment']= list(comments)
         serialize['members'] = list(ticket.assigned.all().values())
@@ -198,7 +205,21 @@ class TicketView(View):
         serialize['progress'] = list(progress.values('id','title','progress','ticket'))
         serialize['checklist'] = list(checklist)
 
-        return JsonResponse(serialize, safe=False)
+        try:
+            if date.today() >= ticket.deadline:
+                serialize['due'] = '(This card is on its deadline '+str(ticket.deadline)+')'
+                msg = ticket.name+' is on its deadline '+str(ticket.deadline)
+                activity = ActivityLog(activity=msg,board_id=ticket.lists.board_id)
+                activity.save()
+
+            msg = self.request.user.first_name+' '+self.request.user.last_name+' set a deadline for '+ticket.name+'(card) on '+str(ticket.deadline)
+            activity = ActivityLog(activity=msg,board_id=ticket.lists.board_id)
+            activity.save()
+            serialize['deadline'] = str(ticket.deadline)
+            return JsonResponse(serialize, safe=False)
+
+        except:
+            return JsonResponse(serialize, safe=False) 
 
 
     def post(self, *args, **kwargs):
@@ -390,6 +411,14 @@ class InviteToBoardView(View):
             if user is not None:
                 serializer['email'] = user.email
 
+            send_mail(
+                'Invitation to collaborate', 
+                self.request.user.email+' invited you to collaborate in their board ('+invite.board.title+'), please login to your trolley account for confirmation http://192.168.2.111:8000/',
+                'bambolino35@gmail.com',
+                [invite_email.cleaned_data['email']],
+                fail_silently = False
+            )
+
             return JsonResponse(serializer, safe=False)
         return JsonResponse({'error': 'Incorrect email format',
             'board':kwargs.get('board_id')}, safe=False )
@@ -576,6 +605,11 @@ class DeleteListView(View):
     def post(self, *args, **kwargs):
         lists = List.objects.get(id=kwargs.get('list_id'))
         serializer = ListSerializer(lists).data
+        
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" deleted "+lists.name+"(list)"
+        activity = ActivityLog(activity=msg,board_id=lists.board_id)
+        activity.save()
+
         lists.delete()
 
         return JsonResponse(serializer, safe=False)
@@ -588,6 +622,11 @@ class DeleteCardView(View):
     def post(self, *args, **kwargs):
         ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
         serializer = TicketSerializer(ticket).data
+
+        msg = self.request.user.first_name+" "+self.request.user.last_name+" deleted "+ticket.lists.name+"(card)"
+        activity = ActivityLog(activity=msg,board_id=ticket.lists.board_id)
+        activity.save()
+
         ticket.delete()
 
         return JsonResponse(serializer, safe=False)
@@ -795,7 +834,13 @@ class DeleteChecklistItemView(View):
 
         overall = checklist.count()
         done = checklist_done.count()
-        per = (done/overall)*100
+
+        if overall == 0 and done == 0:
+            per = 0
+
+        else:
+            per = (done/overall)*100
+
 
         progress.progress = per
         progress.save()
@@ -803,6 +848,30 @@ class DeleteChecklistItemView(View):
         serializer = ProgressSerializer(progress).data
         serializer['item'] = ChecklistSerializer(item).data
         return JsonResponse(serializer, safe=False)
+
+
+class SetDeadlineView(View):
+    """
+    Set a deadline for the ticket
+    """
+    def post(self, *args, **kwargs):
+        deadline_form = TicketDeadlineForm(self.request.POST)
+
+        if deadline_form.is_valid():
+            ticket = Ticket.objects.get(id=kwargs.get('ticket_id'))
+            ticket.deadline = deadline_form.cleaned_data['deadline']
+            ticket.save()
+
+            serializer = TicketSerializer(ticket).data
+            if date.today() >= ticket.deadline:
+               serializer['due'] = '(This ticket is on its deadline '+str(ticket.deadline)+')' 
+               msg = ticket.name+'is on its deadline '+str(ticket.deadline)
+               activity = ActivityLog(activity=msg,board_id=ticket.lists.board_id)
+               activity.save()
+
+            serializer['deadline'] = str(ticket.deadline)
+
+            return JsonResponse(serializer, safe=False)
 
 
 

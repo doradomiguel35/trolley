@@ -270,7 +270,6 @@ function add_list(event){
                   {% csrf_token %}
                     <button class="dropdown-item" type="submit">Archive</button>
                   </form>
-                  <a class="dropdown-item" href="#">Edit</a>
                 </div>
             </div>
           </h3>
@@ -453,6 +452,8 @@ function modalClick(event){
       var file = '';
       var image = '';
       var status = '';
+      var deadline='';
+      var date_deadline='';
       console.log(data);
 
       //DESCRIPTION
@@ -502,13 +503,27 @@ function modalClick(event){
             <hr>`;
       }
 
+      if(data.due != null){
+        deadline = data.due;
+      }
+
+      if(data.deadline != null){
+        date_deadline = data.deadline;
+      }
+
       //ACTUAL MODAL
       $('#insert-modal-ticket').empty();
       $('#insert-modal-ticket').append(`
          <div class="panel panel-default">
             <div class="panel-body">
               <i class="material-icons" style="font-size:20px; margin-: 20px;"">apps</i>
-             `+data.name+`
+              `+data.name+`
+              <form action="/main/board/view/card/set/deadline/`+data.id+`/" method="post" style="display:inline;float:right;" class="set-deadline-btn">
+                {% csrf_token %}
+                {% render_field deadline_form.deadline id="deadline-datepicker" style="width:250px;" class+="form-control" placeholder="Set a deadline for this card "%}
+                <button type="submit" class="btn btn-primary" style="float:right; margin-top:10px;">Set</button>
+             </form>
+
              <div class="dropdown show" style="display: inline-block;text-align: center;">
               <a class="edit-list-btn btn" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               </a>
@@ -517,11 +532,17 @@ function modalClick(event){
                   {% csrf_token %}
                     <button class="dropdown-item" type="submit">Archive</button>
                   </form>
-                  <a class="dropdown-item" href="#">Edit</a>
                 </div>
             </div>
             </div>
           </div>
+              <br>
+              <h1 class="login-forms" id="deadline_date" style="display: inline; font-size: 16px;">Deadline: `+date_deadline+`</h1>
+              <div id="deadline">
+             `+deadline+`
+              </div>
+             <br>
+             
           <br><br>
           <div class="panel panel-default">
             <div class="panel-body">
@@ -651,6 +672,9 @@ function modalClick(event){
         `);
       }
 
+      $('#deadline-datepicker').datepicker({
+      })
+      $('.set-deadline-btn').on('submit', set_deadline);
       $('.delete-item-btn').on('submit', delete_item);
       $('.delete-checklist-btn').on('submit', delete_checklist);
       $('.list-undone-btn').on('submit', item_undone);
@@ -668,6 +692,33 @@ function modalClick(event){
     }
   });
    
+}
+
+function set_deadline(event){
+  event.preventDefault();
+  var url = $(this).attr('action');
+
+  $.ajax({
+    url:url,
+    method: "POST",
+    data: $(this).serialize(),
+    success: function(data){
+      if(data.due != null){
+        $('#deadline').empty();
+        $('#deadline').append(`
+          `+data.due+`
+        `);
+      }
+
+      else{
+        $('#deadline').empty();
+      }
+
+      $('#deadline_date').empty();
+      $('#deadline_date').append(`Deadline: `+data.deadline);
+    }
+    
+  });
 }
 
 function delete_item(event){
@@ -1678,6 +1729,9 @@ $('.members-modal-view').on('submit',displayMembers);
 $('#btn-close-assign-members').on('click', function(event){
   $('#assignMemberModal').removeClass('show');
 });
+$('#exportBoard').on('click', function(event){
+  window.print();
+})
 </script>
 </body>
 </html>

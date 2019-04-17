@@ -25,6 +25,7 @@ urlpatterns = [
     path('board/invite/<int:board_id>/', views.InviteToBoardView.as_view(), name='invite_member'),
     path('board/invite/view/', views.BoardInvitesView.as_view(), name='view_invites'),
     path('board/invite/confirm/<int:board_id>/<int:invite_id>/', views.BoardInvitesView.as_view(), name="confirm_invite"),
+    path('board/view/card/set/deadline/<int:ticket_id>/', views.SetDeadlineView.as_view(), name="set_deadline"),
     path('board/view/members/<int:board_id>/', views.MemberBoardView.as_view(), name="members"),
     path('board/view/card/get/description/<int:ticket_id>/', views.UpdateDescTicketView.as_view(), name="get_desc"),
     path('board/view/card/<int:ticket_id>/',views.TicketView.as_view(), name='ticket_view'),

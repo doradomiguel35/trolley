@@ -129,3 +129,13 @@ class ChecklistForm(forms.ModelForm):
         model = Checklist
         fields = ('name',)
 
+
+class TicketDeadlineForm(forms.ModelForm):
+    """
+    Deadline of ticket form
+    """
+
+    class Meta:
+        model = Ticket
+        fields = ('deadline',)
+

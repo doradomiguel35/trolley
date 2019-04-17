@@ -10,10 +10,6 @@
 					<i class="fa fa-home"></i>
 				</a>
 			</li>
-			<li class="nav-item main-nav-margin">
-				<a href="" class="btn primary btn-primary">
-					<i class="fa fa-bars"></i>&nbsp Boards</a>
-			</li>
         </ul>
     </div>
 
@@ -86,24 +82,35 @@
 {% block content %}
 	<div class="wrapper">
 		<section class="columns">
-	   		<div class="column">
+	   		<!-- <div class="column">
 				<a href="#" class="btn btn-outline-primary feed-button-left" >Boards</a><br>
 				<a href="#" class="btn btn-outline-secondary feed-button-left">Home</a><br>
 				
-	   		</div>
-	   		<div class="column" style="width: 200px;">
-	   			<div style="padding-left: 100px;">
-					<h1 class="feed-text-right">LINKS</h1>
+	   		</div> -->
+	   		<div class="column">
+	   			
+					<h1 class="feed-text-right">BOARDS</h1>
+					<div class="parent">
 					{% for board in boards %}
-					<a href="{% url 'main:board_view' board.id %}" class="btn btn-outline-secondary feed-button-left">
-						<i class="material-icons" style="font-size:14px">dashboard</i>&nbsp {{ board.title }}
-					</a><br>
+					<div class="column-board">
+						<a href="{% url 'main:board_view' board.id %}" class="btn btn-outline-secondary feed-button-left" style="height: 100px;padding: 40px;padding-left: 60px;">
+							<i class="material-icons" style="font-size:14px">dashboard</i>&nbsp {{ board.title }}
+						</a>
+					</div>
 					{% endfor %}
-					<button class="btn btn-outline-primary feed-button-left" style="margin-top: 20px;" data-target="#addBoard" data-toggle="modal">
+					<div class="column-board">
+						<a data-target="#addBoard" data-toggle="modal" class="btn btn-outline-secondary feed-button-left" style="height: 100px;padding: 20px;padding-left: 60px;">
+							<i class="material-icons" style="font-size:20px;margin-left:30px;">add</i>&nbsp <h1 class="login-forms" style="font-size:15px;">Create a board</h1>
+						</a>
+					</div>
+					</div>
+					<!-- <button class="btn btn-outline-primary feed-button-left" style="margin-top: 20px;" data-target="#addBoard" data-toggle="modal">
 						<i class="fa fa-plus" style="font-size:14px;"></i> Create a board
-					</button>
-				</div>
-	   		</div>
+					</button> -->
+			</div>
+	   		<div class="column">
+	   			
+	   		</div>	
 	   	</section>
    	</div>
 {% endblock content %}

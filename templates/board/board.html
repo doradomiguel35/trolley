@@ -21,7 +21,6 @@
 			<button type="submit" class="btn btn-danger">Leave Board</button>
 		</form>
 		{% endif %}
-		
 		<form method="get" action="{% url 'main:archived_items' board.id %}" style="display: inline;" class="show-menu-btn" data-target="#boardModal" data-toggle="modal">
 			<button class="show-menu btn" type="button"> ...Show Menu </button>
 		</form>
@@ -81,6 +80,7 @@
              <div class="nav nav-tabs" id="nav-tab-menu" role="tablist">
                 <button class="nav-item nav-link active" id="nav-archive-tab" data-toggle="tab" data-target="#tab-archive" role="tab" aria-controls="tab-archive" aria-selected="true">Archived items</button>
                 <button class="nav-item nav-link" id="nav-activities-tab" data-toggle="tab" data-target="#tab-activities" role="tab" aria-controls="tab-activities" aria-selected="false">Activities</button>
+                <button class="nav-item nav-link" id="exportBoard">Export</button>
             </div>
 
             <div class="tab-content" id="nav-tabContent">

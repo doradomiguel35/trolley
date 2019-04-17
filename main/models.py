@@ -56,6 +56,7 @@ class Ticket(models.Model):
     assigned = models.ManyToManyField('users.User', blank=True)
     lists = models.ForeignKey('main.List', on_delete=models.SET_NULL, null=True)
     archived = models.BooleanField(default=False)
+    deadline = models.DateField(null=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)

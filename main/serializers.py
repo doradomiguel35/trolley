@@ -26,6 +26,7 @@ class TicketSerializer(serializers.ModelSerializer):
 			'name',
 			'description',
 			'lists',
+			'deadline',
 		)
 
 
